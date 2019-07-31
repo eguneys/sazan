@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <title>webpack-minimal</title>
     <link rel="shortcut icon" type="image/png" href="../assets/favicon-16x16.png"/>
-    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"/>
+    <link href="./assets/chessground.css" rel="stylesheet"/>
+    <link href="./assets/theme.css" rel="stylesheet"/>
+
     <style>
           html, body {
          width: 100%;
@@ -24,10 +27,14 @@
          height: 100%;
          background: #202020;
      }
+
+     #app {
+         margin: auto;
+     }
     </style>
 </head>
 <body>
-  <section>
+  <section class="blue merida">
     <div id="app"></div>
 
   </section>
@@ -35,6 +42,8 @@
   <script>
 
    Tetris(document.getElementById('app'), {});
+
+   Tetris.Tests();
    
   </script>
 
