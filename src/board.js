@@ -74,16 +74,25 @@ export default function Board(fen) {
       .filter(_ => filter ? filter(_.after):true);
   };
 
-  this.hanging = (square) => {
-    const usColor = this.color(square),
-          us = this.attackersWithCapture(square, usColor),
-          them = this.attackersWithCapture
-    (square,
-     util.opposite(usColor));
+  const withAttackers = (filter) => {
+    return (square) => {
+      const usColor = this.color(square),
+            us = this.attackersWithCapture(square, usColor),
+            them = this.attackersWithCapture
+      (square,
+       util.opposite(usColor));
 
-    return Object.keys(us).length < Object.keys(them).length;
-    
+      return filter(us, them);
+    };
   };
+
+  this.hanging = withAttackers((us, them) => 
+    Object.keys(us).length < Object.keys(them).length
+  );
+
+  this.weak = withAttackers((us, them) =>
+    Object.keys(us).length === Object.keys(them).length
+  );
 
   this.mobility = (square) => {
     const movements = this.movements(square);
