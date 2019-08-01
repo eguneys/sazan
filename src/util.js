@@ -7,6 +7,9 @@ export const Direction = {
   all: 'all'
 };
 
+export const colors = ['w', 'b'];
+export const opposite = (color) => { return (color === 'w')?'b':'w'; };
+
 export const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 export const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
 

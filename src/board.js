@@ -36,7 +36,7 @@ export default function Board(fen) {
 
   this.remove = (square) => chess.remove(square);
 
-  this.side = (square) => {
+  this.color = (square) => {
     return this.get(square).color;
   };
 
@@ -72,6 +72,28 @@ export default function Board(fen) {
     return chess.moves()
       .map(_ => new Move(_, this))
       .filter(_ => filter ? filter(_.after):true);
+  };
+
+  this.hanging = (square) => {
+    const usColor = this.color(square),
+          us = this.attackersWithCapture(square, usColor),
+          them = this.attackersWithCapture
+    (square,
+     util.opposite(usColor));
+
+    return Object.keys(us).length < Object.keys(them).length;
+    
+  };
+
+  this.mobility = (square) => {
+    const movements = this.movements(square);
+    const res = [];
+    for (var key in movements) {
+      if (!movements[key].danger && !movements[key].blocking) {
+        res.push(key);
+      }
+    }
+    return res;
   };
 
 
@@ -123,8 +145,8 @@ export default function Board(fen) {
     return movements;
   };
 
-  this.attackersWith = (filter, square) => {
-    const attackers = this.attackers(square);
+  this.attackersWith = (filter, square, direction) => {
+    const attackers = this.attackers(square, direction);
     const res = {};
     for (let key in attackers) {
       let attacker = attackers[key];
@@ -134,6 +156,19 @@ export default function Board(fen) {
     }
     return res;
   };
+
+  this.attackersWithColor = (color, square, direction) => {
+    return this.attackersWith(key => this.get(key).color === color,
+                       square, direction);
+  };
+
+
+  this.attackersWithCapture = (square, color) => {
+    return this.attackersWith((key, o) =>
+      !o.blocking && (!color || this.get(key).color === color)
+      , square);
+  };
+
 
   this.attackers = (square, direction = Direction.all) => {
     const attackers = chess.attackers(square);

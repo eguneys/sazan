@@ -105,9 +105,9 @@ RNBQ BNK
 rnbq Bnr
 pppp ppp
    R    
-k pR q  
-PP r    
-      Rr
+k  pR q 
+P Pr    
+ P    Rr
 PPP  PPP
 RNBQKBNR
 `, board => {
@@ -116,16 +116,21 @@ RNBQKBNR
 
   deep_is('king', {
     'f1': { blocking: ['f1'] },
-    'f2': { blocking: ['f2'], danger: true },
+    'f2': { blocking: ['f2'] },
     'e2': {},
     'd1': { blocking: ['d1'], danger: true },
     'd2': { danger: true }
   }, board.movements('e1'));
 
   deep_is('pinned pawn', {
-    'c4': { danger: true },
-    'b4': { danger: true }
-  }, board.movements('c5'));
+    'd4': { blocking: ['d4'], danger: true },
+    'c4': { danger: true }
+  }, board.movements('d5'));
+
+
+  deep_is('can put in check', {
+    'b4': {}
+  }, board.movements('b3'));
 
 });
 

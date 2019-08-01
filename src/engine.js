@@ -7,9 +7,7 @@ export default function Engine(fen) {
   this.board = new Board(fen);
 
   this.tactics = () => {
-    return Object.keys(TacticSolver)
-      .flatMap(_ => TacticSolver[_](this.board))
-      .filter(_ => !!_);
+    return TacticSolver.solve(this.board);
   };
 
 }

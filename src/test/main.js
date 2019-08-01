@@ -6,10 +6,10 @@ import mate from './mate';
 
 export function Tests() {
 
-  board();
+  // board();
   // fen();
-  //rules();
-  // mate();
+  // rules();
+  mate();
   // hanging();
   
 }

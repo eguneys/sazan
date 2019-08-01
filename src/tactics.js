@@ -53,8 +53,15 @@ export const Tactic2Solver = {
 };
 
 export const TacticSolver = {
-  backrankMate(board) {
+  solve(board) {
+    return TacticSolvers
+      .flatMap(_ => _(board))
+      .filter(_ => !!_);
+  }
+};
 
+export const TacticSolvers = [
+  (board) => {
     const filters = depth => board => {
       const attack = attack => {
         const kingMoves = attack.moves(attack.king());
@@ -62,13 +69,33 @@ export const TacticSolver = {
       };
       const defense = defense => {
         const king = defense.king(false);
-        const kingSide = defense.side(king);
         const kingMobility = defense.mobility(king);
         const kingMobilityDirection = util.classifyDirection(kingMobility);
 
-        const attackers = defense.attackers(king, kingMobilityDirection);
-        
-        console.log(attackers);
+        const kingColor = defense.get(king).color;
+
+        const attackersWithOnlyBlocker = defense.attackersWith((key, o) => {
+
+          const sameColor = defense.get(key).color === kingColor;
+          const onlyBlocker = o.blocking && o.blocking.length === 1;
+          
+          if (sameColor) return false;
+
+          if (onlyBlocker) {
+            const blocker = defense.get(o.blocking[0]);
+            return blocker.color === kingColor;
+          } else {
+            return false;
+          }          
+        }, king, kingMobilityDirection);
+
+        for (let key in attackersWithOnlyBlocker) {
+          let o = attackersWithOnlyBlocker[key];
+          let blocker = o.blocking[0];
+          if (defense.hanging(blocker)) {
+            return false;
+          }
+        }
 
         return true;
       };
@@ -94,8 +121,7 @@ export const TacticSolver = {
 
     return nullIfEmpty(mateCombination.lines(), Tactics.BackrankMate);
   },
-  forcedMate(board) {
-
+  (board) => {
     const attack = depth => attack => attack.isMate();
 
     const mateCombination = new Combination(attack, board);
@@ -103,4 +129,4 @@ export const TacticSolver = {
     
     return nullIfEmpty(mateCombination.lines(), Tactics.ForcedMate);
   }
-};
+];
