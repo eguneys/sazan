@@ -38,18 +38,17 @@ export default function run() {
                'Re8#': {}
              })
             ]);
-  
 
   tactic_is('backrank 2', '2r1r1k1/5ppp/8/8/Q7/8/5PPP/4R1K1 w - - 1 3',
             [Tactics.BackrankMate({
-              'Rxe8+': {
-                'Rxe8': {
-                  'Qxe8#': {}
-                }
-              },
               'Qxe8+': {
                 'Rxe8': {
                   'Rxe8#': {}
+                }
+              },
+              'Rxe8+': {
+                'Rxe8': {
+                  'Qxe8#': {}
                 }
               }
             })]);

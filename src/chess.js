@@ -252,6 +252,10 @@ export default function Chess() {
     return chess.in_checkmate();
   };
 
+  this.inCheck = () => {
+    return chess.in_check();
+  };
+
   this.ascii = () => {
     return chess.ascii();
   };

@@ -69,9 +69,9 @@ export default function Board(fen) {
   };
 
   this.legals = (filter) => {
-    return chess.moves()
+    return chess.moves({ verbose: true })
       .map(_ => new Move(_, this))
-      .filter(_ => filter ? filter(_.after):true);
+      .filter(_ => filter ? filter(_.after, _):true);
   };
 
   const withAttackers = (filter) => {
@@ -224,6 +224,10 @@ export default function Board(fen) {
 
   this.isMate = () => {
     return chess.inCheckmate();
+  };
+
+  this.isCheck = () => {
+    return chess.inCheck();
   };
 
   this.ascii = () => chess.ascii();

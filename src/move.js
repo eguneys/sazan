@@ -1,12 +1,15 @@
-export default function Move(uci, board) {
+export default function Move(base, board) {
   
-  this.uci = uci;
+  this.base = base;
   this.board = board;
 
-  this.after = board.apply(uci);
+  this.uci = this.base.san;
+  this.to = this.base.to;
+
+  this.after = board.apply(this.uci);
 
   this.toString = () => {
-    return uci;
+    return this.uci;
   };
 
 }
