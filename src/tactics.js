@@ -66,12 +66,9 @@ export const TacticSolver = {
         const kingMobility = defense.mobility(king);
         const kingMobilityDirection = util.classifyDirection(kingMobility);
 
-        const blockers = defense.blockers(king, {
-          vision: Vision.blocking(kingSide),
-          direction: kingMobilityDirection
-        });
+        const attackers = defense.attackers(king, kingMobilityDirection);
         
-        console.log(blockers);
+        console.log(attackers);
 
         return true;
       };

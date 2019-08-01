@@ -4,7 +4,7 @@ import * as util from './util';
 
 export default function Chess() {
 
-  const attackVector = (piece) => {
+  const movementVector = (piece) => {
     function diffSquare(from, d) {
       const iFile = util.files.indexOf(util.fileOf(from)),
             iRank = util.ranks.indexOf(util.rankOf(from));
@@ -105,23 +105,68 @@ export default function Chess() {
       [-1, -1]
     ];
 
-    const pawns = [];
+    const pawnAttacks = (from, color) => {
+      const direction = color === 'w'?1:-1;
+      return [[1, direction],
+              [-1, direction]];
+    };
 
-    const vectors = {
+    const pawnMoves = (from, color) => {
+      const direction = color === 'w'?1:-1;
+      const rank = util.rankOf(from);
+      const atBase = direction===-1?rank==='7':rank==='2';
+      var res = [[0, direction]];
+      if (atBase) {
+        res.push([0, direction * 2]);
+      }
+      return res;
+    };
+
+    const attackVectors = {
       'r': [...files, ...ranks],
       'q': [...files, ...ranks, ...diagonals],
       'b': [...diagonals],
       'n': [...knights],
-      'k': [...kings],
-      'p': [...pawns]
+      'k': [...kings]
     };
 
-    const vector = vectors[piece.type];
+    const moveVectors = {
+      'r': [...files, ...ranks],
+      'q': [...files, ...ranks, ...diagonals],
+      'b': [...diagonals],
+      'n': [...knights],
+      'k': [...kings]
+    };
 
-    return (from) => {
-      return vector
-        .map(_ => diffSquare(from, _))
-        .filter(_ => !!_);
+    const attackVector = (from, color) => {
+      if (piece.type === 'p') {
+        return pawnAttacks(from, color);
+      } else {
+        return attackVectors[piece.type];
+      }
+    };
+
+    const color = piece.color;
+
+    const moveVector = (from, color) => {
+      if (piece.type === 'p') {
+        return pawnMoves(from, color);
+      } else {
+        return moveVectors[piece.type];
+      }
+    };
+
+    return {
+      attack(from) {
+        return attackVector(from, color)
+          .map(_ => diffSquare(from, _))
+          .filter(_ => !!_);
+      },
+      move(from) {
+        return moveVector(from, color)
+          .map(_ => diffSquare(from, _))
+          .filter(_ => !!_);
+      }
     };
   };
   
@@ -157,10 +202,16 @@ export default function Chess() {
     );
   };
 
+  this.movements = (from) => {
+    const piece = this.get(from);
+
+    return movementVector(piece).move(from);
+  };
+
   this.attacks = (from) => {
     const piece = this.get(from);
 
-    return attackVector(piece)(from);
+    return movementVector(piece).attack(from);
   };
 
   this.attacking = (from, to) => {

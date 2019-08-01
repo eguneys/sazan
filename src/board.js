@@ -1,7 +1,7 @@
 import Chess from './chess';
 
 import * as util from './util';
-import { Vision } from './util';
+import { Direction } from './util';
 
 import Move from './move';
 
@@ -72,26 +72,56 @@ export default function Board(fen) {
       .filter(_ => filter ? filter(_.after):true);
   };
 
-  /*
-    @opts:
-    {
-    direction: kingMobilityDirection
-    }
-   */
-  this.attackers = (square, direction) => {
-    const attackers = chess.attackers(square);
 
-    return attackers.reduce((acc , attack) => ({
+  this.movements = (square) => {
+    const movements = chess.movements(square);
+
+    return movements.reduce((acc, movement) => ({
       ...acc,
-      [attack]: {
-        blocking: this.blocks(attack, square)
+      [movement]: {
+        blocking: this.movementblocks(square, movement)
       }
     }), {});
   };
 
-  this.blocks = (attack, defense) => {
+  this.attackers = (square, direction = Direction.all) => {
+    const attackers = chess.attackers(square);
+
+    return attackers
+      .filter(attack => 
+        (direction === Direction.all ||
+         util.classifyDirection([square, attack]) === direction)
+      )
+      .reduce((acc , attack) => ({
+        ...acc,
+        [attack]: {
+          blocking: this.rayblocks(attack, square)
+        }
+      }), {});
+  };
+
+  this.movementblocks = (from, to) => {
+    const fromPiece = this.get(from),
+          isPawn = fromPiece.type === 'p';
+
+    const rayBlocks = this.rayblocks(from, to);
+
+    const toPiece = this.get(to),
+          isEmpty = !toPiece,
+          canTake = !isEmpty &&
+          !isPawn &&
+          toPiece.color !== fromPiece.color &&
+          rayBlocks.length === 0;
+
+    if (!isEmpty && !canTake) {
+      rayBlocks.push(to);
+    }
+    return rayBlocks;    
+  };
+
+  this.rayblocks = (from, to) => {
     const res = [];
-    for (let square of util.raycast(attack, defense)) {
+    for (let square of util.raycast(from, to)) {
       let piece = this.get(square);
       if (piece) {
         res.push(square);

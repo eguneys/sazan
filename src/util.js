@@ -7,12 +7,6 @@ export const Direction = {
   all: 'all'
 };
 
-export const Attack = (blocking) => {
-  return {
-    blocking
-  };
-};
-
 export const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 export const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
@@ -58,17 +52,17 @@ export const sameDiagonal = (from, to) => {
 
 export const classifyDirection = (squares) => {
   const first = squares[0];
-  if (!!first) {
+  if (!first) {
     return Direction.all;
   }
 
-  const sameFile = squares.every(_ => sameFile(first, _));
-  const sameRank = squares.every(_ => sameRank(first, _));
-  const sameDiag = squares.every(_ => sameDiagonal(first, _));
+  const isSameFile = squares.every(_ => sameFile(first, _));
+  const isSameRank = squares.every(_ => sameRank(first, _));
+  const isSameDiag = squares.every(_ => sameDiagonal(first, _));
 
-  if (sameFile) return Direction.file;
-  if (sameRank) return Direction.rank;
-  if (sameDiag) return Direction.diagonal;
+  if (isSameFile) return Direction.file;
+  if (isSameRank) return Direction.rank;
+  if (isSameDiag) return Direction.diagonal;
   
   return Direction.all;  
 };
