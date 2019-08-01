@@ -1,6 +1,6 @@
 import Board from './board';
 
-import { TacticSolver, Tactic2Solver } from './tactics';
+import { TacticSolver, Tactic2Solver } from './solvers';
 
 export default function Engine(fen) {
 

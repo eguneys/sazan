@@ -2,7 +2,7 @@ import { deep_is, is, ok, not, log } from 'testiz/browser';
 
 import { set_is, withEngine } from './util';
 
-import { Tactics, Tactics2 } from '../tactics';
+import { Tactics, Tactics2 } from '../solvers';
 
 function tactic_is(msg, fen, tactics) {
   withEngine(engine => {
