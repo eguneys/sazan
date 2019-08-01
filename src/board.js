@@ -85,16 +85,14 @@ export default function Board(fen) {
 
     movements = movements.reduce((acc, movement) => ({
       ...acc,
-      [movement]: {
-        blocking: this.movementblocks(square, movement)
-      }
+      [movement]: Movement(this.movementblocks(square, movement))
     }), {});
 
     if (piece.type === 'p') {
       let captures = chess.captures(square);
 
       captures = captures.reduce((acc, capture) => ({
-        [capture]: {}
+        [capture]: Movement()
       }), {});
 
       movements = {...movements, ...captures};
@@ -114,7 +112,7 @@ export default function Board(fen) {
       const attackers = board.attackersWith((square, oAttack) => {
         const attacker = board.get(square);
         return attacker.color !== piece.color &&
-          oAttack.blocking.length === 0;
+          !oAttack.blocking;
       }, kingPos);
 
       if (Object.entries(attackers).length !== 0) {
@@ -147,9 +145,7 @@ export default function Board(fen) {
       )
       .reduce((acc , attack) => ({
         ...acc,
-        [attack]: {
-          blocking: this.rayblocks(attack, square)
-        }
+        [attack]: Movement(this.rayblocks(attack, square))
       }), {});
   };
 
@@ -195,4 +191,12 @@ export default function Board(fen) {
     board.chess().move(move);
     return board;
   };
+}
+
+function Movement(blocking) {
+  var res = {};
+  if (blocking && blocking.length > 0) {
+    res.blocking = blocking;
+  }
+  return res;
 }

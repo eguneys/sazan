@@ -25,31 +25,31 @@ RNBQKBNR
 
   is('f2 side', 'w', board.side('f2'));
 
-  deep_is('c3', { 'b1': { blocking: [] },
-                  'b2': { blocking: [] },
-                  'c5': { blocking: [] },
-                  'd2': { blocking: [] }},
+  deep_is('c3', { 'b1': {},
+                  'b2': {},
+                  'c5': {},
+                  'd2': {}},
           board.attackers('c3'));
 
 
-  deep_is('d2', { 'b1': { blocking: [] },
-                  'c1': { blocking: [] },
-                  'd1': { blocking: [] },
-                  'd4': { blocking: [] },
+  deep_is('d2', { 'b1': {},
+                  'c1': {},
+                  'd1': {},
+                  'd4': {},
                   'd8': { blocking: ['d7', 'd4'] },
-                  'e1': { blocking: [] }}, board.attackers('d2'));
+                  'e1': {}}, board.attackers('d2'));
 
-  deep_is('f2', { 'e1': { blocking: [] },
-                  'f5': { blocking: [] },
+  deep_is('f2', { 'e1': {},
+                  'f5': {},
                   'c5': { blocking: ['d4'] }},
           board.attackers('f2'));
 
   deep_is('f2 direction diagonal', { 'c5': { blocking: ['d4'] },
-                                     'e1': { blocking: [] }},
+                                     'e1': {}},
           board.attackers('f2', Direction.diagonal));
 
 
-  deep_is('f2 direction file', { 'f5': { blocking: [] }},
+  deep_is('f2 direction file', { 'f5': {}},
           board.attackers('f2', Direction.file));
 
 });
@@ -70,7 +70,7 @@ RNBQ BNK
   deep_is('no piece', {}, board.movements('a3'));
 
   deep_is('pawn',
-          { 'a3': { blocking: [] },
+          { 'a3': {},
             'a4': { blocking: ['a4'] }}, board.movements('a2'));
 
   deep_is('pawn blocked by them',
@@ -87,17 +87,17 @@ RNBQ BNK
     'f4': { blocking: ['e4'] },
     'g4': { blocking: ['e4'] },
     'h4': { blocking: ['e4'] },
-    'c4': { blocking: [] },
-    'b4': { blocking: [] },
+    'c4': {},
+    'b4': {},
     'a4': { blocking: ['b4'] },
 
-    'd5': { blocking: [] },
+    'd5': {},
     'd6': { blocking: ['d5'] },
     'd7': { blocking: ['d5','d7'] },
     'd8': { blocking: ['d5', 'd7', 'd8'] },
-    'd3': { blocking: [] },
-    'd2': { blocking: [] },
-    'd1': { blocking: [] },
+    'd3': {},
+    'd2': {},
+    'd1': {},
   }, board.movements('d4'));
 });
 
@@ -117,10 +117,15 @@ RNBQKBNR
   deep_is('king', {
     'f1': { blocking: ['f1'] },
     'f2': { blocking: ['f2'], danger: true },
-    'e2': { blocking: [] },
+    'e2': {},
     'd1': { blocking: ['d1'], danger: true },
-    'd2': { blocking: [], danger: true }
+    'd2': { danger: true }
   }, board.movements('e1'));
+
+  deep_is('pinned pawn', {
+    'c4': { danger: true },
+    'b4': { danger: true }
+  }, board.movements('c5'));
 
 });
 
