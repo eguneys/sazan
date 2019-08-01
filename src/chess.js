@@ -119,6 +119,7 @@ export default function Chess() {
       if (atBase) {
         res.push([0, direction * 2]);
       }
+
       return res;
     };
 
@@ -156,6 +157,14 @@ export default function Chess() {
       }
     };
 
+    const captureVector = (from, color) => {
+      if (piece.type === 'p') {
+        return pawnAttacks(from, color);
+      }
+      return [];
+    };
+
+    const chess = this;
     return {
       attack(from) {
         return attackVector(from, color)
@@ -166,6 +175,14 @@ export default function Chess() {
         return moveVector(from, color)
           .map(_ => diffSquare(from, _))
           .filter(_ => !!_);
+      },
+      capture(from) {
+        return captureVector(from, color)
+          .map(_ => diffSquare(from, _))
+          .filter(_ => {
+            let captured = chess.get(_);
+            return !!_ && captured && captured.color !== piece.color;
+          });
       }
     };
   };
@@ -192,6 +209,10 @@ export default function Chess() {
     return chess.put(piece, square);
   };
 
+  this.remove = (piece) => {
+    return chess.remove(piece);
+  };
+
   this.moves = (opts) => {
     return chess.moves(opts);
   };
@@ -200,6 +221,11 @@ export default function Chess() {
     return util.squares.filter(square =>
       !!this.get(square)
     );
+  };
+
+  this.captures = (from) => {
+    const piece = this.get(from);
+    return movementVector(piece).capture(from);
   };
 
   this.movements = (from) => {

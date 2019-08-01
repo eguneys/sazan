@@ -58,25 +58,70 @@ RNBQKBNR
 rnbqkBnr
 pppp ppp
         
-  q  q  
-P  r    
+  qP q  
+PP rr   
+      Rr
+PPP  PPP
+RNBQ BNK
+`, board => {
+
+  log('mobility');
+
+  deep_is('no piece', {}, board.movements('a3'));
+
+  deep_is('pawn',
+          { 'a3': { blocking: [] },
+            'a4': { blocking: ['a4'] }}, board.movements('a2'));
+
+  deep_is('pawn blocked by them',
+          { 'h3': { blocking: ['h3'] },
+            'h4': { blocking: ['h3'], danger: true }}, board.movements('h2'));
+
+  deep_is('pawn blocked by us',
+          { 'g3': { blocking: ['g3'] },
+            'g4': { blocking: ['g3'] },
+            'h3': { }}, board.movements('g2'));
+
+  deep_is('rook', {
+    'e4': { blocking: ['e4'] },
+    'f4': { blocking: ['e4'] },
+    'g4': { blocking: ['e4'] },
+    'h4': { blocking: ['e4'] },
+    'c4': { blocking: [] },
+    'b4': { blocking: [] },
+    'a4': { blocking: ['b4'] },
+
+    'd5': { blocking: [] },
+    'd6': { blocking: ['d5'] },
+    'd7': { blocking: ['d5','d7'] },
+    'd8': { blocking: ['d5', 'd7', 'd8'] },
+    'd3': { blocking: [] },
+    'd2': { blocking: [] },
+    'd1': { blocking: [] },
+  }, board.movements('d4'));
+});
+
+  withVisualBoard(`
+rnbq Bnr
+pppp ppp
+   R    
+k pR q  
+PP r    
       Rr
 PPP  PPP
 RNBQKBNR
 `, board => {
 
-  log('mobility');
+  log('king safety');
 
-  deep_is('pawn', { 'a3': { blocking: [] },
-                    'a4': { blocking: ['a4'] }}, board.movements('a2'));
+  deep_is('king', {
+    'f1': { blocking: ['f1'] },
+    'f2': { blocking: ['f2'], danger: true },
+    'e2': { blocking: [] },
+    'd1': { blocking: ['d1'], danger: true },
+    'd2': { blocking: [], danger: true }
+  }, board.movements('e1'));
 
-  deep_is('pawn blocked by them',
-          { 'h3': { blocking: ['h3'] },
-            'h4': { blocking: ['h3'] }}, board.movements('h2'));
-
-  deep_is('pawn blocked by us',
-          { 'g3': { blocking: ['g3'] },
-            'g4': { blocking: ['g3'] }}, board.movements('g2'));
 });
 
 }

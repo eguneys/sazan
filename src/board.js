@@ -34,6 +34,8 @@ export default function Board(fen) {
 
   this.put = (piece, square) => chess.put(piece, square);
 
+  this.remove = (square) => chess.remove(square);
+
   this.side = (square) => {
     return this.get(square).color;
   };
@@ -74,14 +76,65 @@ export default function Board(fen) {
 
 
   this.movements = (square) => {
-    const movements = chess.movements(square);
+    const piece = this.get(square);
+    if (!piece) {
+      return {};
+    }
 
-    return movements.reduce((acc, movement) => ({
+    let movements = chess.movements(square);
+
+    movements = movements.reduce((acc, movement) => ({
       ...acc,
       [movement]: {
         blocking: this.movementblocks(square, movement)
       }
     }), {});
+
+    if (piece.type === 'p') {
+      let captures = chess.captures(square);
+
+      captures = captures.reduce((acc, capture) => ({
+        [capture]: {}
+      }), {});
+
+      movements = {...movements, ...captures};
+    }
+
+    let from = square;
+
+    for (let to in movements) {
+      let board = this.clone();
+      let movement = movements[to];
+
+      board.remove(from);
+      board.put(piece, to);
+
+      const kingPos = board.king(piece.color);
+
+      const attackers = board.attackersWith((square, oAttack) => {
+        const attacker = board.get(square);
+        return attacker.color !== piece.color &&
+          oAttack.blocking.length === 0;
+      }, kingPos);
+
+      if (Object.entries(attackers).length !== 0) {
+        movement.danger = true;
+      }
+    }
+
+    return movements;
+  };
+
+  this.attackersWith = (filter, square) => {
+    const attackers = this.attackers(square);
+    const res = {};
+    for (let key in attackers) {
+      let attacker = attackers[key];
+      if (filter(key, attacker)) {
+        res[key] = attacker;
+      }
+    }
+    return res;
   };
 
   this.attackers = (square, direction = Direction.all) => {
@@ -110,8 +163,7 @@ export default function Board(fen) {
           isEmpty = !toPiece,
           canTake = !isEmpty &&
           !isPawn &&
-          toPiece.color !== fromPiece.color &&
-          rayBlocks.length === 0;
+      toPiece.color !== fromPiece.color;
 
     if (!isEmpty && !canTake) {
       rayBlocks.push(to);
