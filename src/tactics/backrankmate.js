@@ -2,16 +2,20 @@ import { Tactics } from '../solvers';
 
 import Combination from '../combination';
 
+import { Continue, Terminate } from '../combination';
+
 import * as util from '../util';
 
-const BackrankMateSolver = (board) => {
+const BackrankMateSolver = (board, startAtDepth = 0) => {
   const ideas = new Set();
 
   const filters = depth => (board, move) => {
-    const attack = attack => {
-      const kingMoves = attack.moves(attack.king());
-      return kingMoves.length === 0;
-    };
+    // const attack = attack => {
+    //   const kingMoves = attack.moves(attack.king());
+    //   return kingMoves.length === 0;
+    // };
+    const attack = attack => attack.isCheck();
+
     const defense = defense => {
       const king = defense.king(false);
       const kingMobility = defense.mobility(king);
@@ -54,19 +58,25 @@ const BackrankMateSolver = (board) => {
 
     switch (depth) {
     case 0:
-      return attack(board);
+      return Continue(attack(board));
     case 1:
-      return defense(board);
+      return Continue(defense(board));
     case 2:
-      return final(board) || aggressive(board);
+      if (final(board)) {
+        return Terminate(true);
+      } else {
+        return Continue(aggressive(board));
+      }
     case 3:
       defense(board) && collectIdea(move);
-    default: return false;
+      return Terminate(false);
+    default: 
+      throw new Error("Unreachable depth reached");
     }
 
   };
 
-  const mateCombination = new Combination(filters, board);
+  const mateCombination = new Combination(filters, board, startAtDepth);
   
   mateCombination.Run();
 

@@ -9,6 +9,20 @@ function nullIfEmpty(obj, maker) {
   return null;
 }
 
+function depthOf(lines) {
+  var level = 0;
+  var key;
+  for(key in lines) {
+    if (!lines.hasOwnProperty(key)) continue;
+
+    if(typeof lines[key] == 'object'){
+      var depth = depthOf(lines[key]) + 1;
+      level = Math.max(depth, level);
+    }
+  }
+  return level;
+}
+
 class Tactic {
   constructor(name, solver) {
     this.name = name;
@@ -17,21 +31,26 @@ class Tactic {
 }
 
 export class SimpleTactic extends Tactic {
-  constructor(name, combination, solver, ideas) {
+  constructor(name, combination, combo, solver, ideas) {
     super(name, solver);
     this.lines = combination;
     this.ideas = ideas;
+    this.combo = combo;
   }
 
   solved() {
-    return this.ideas.size === 0 &&
-      Object.entries(this.lines).length > 0;
+    return depthOf(this.lines) <= this.combo &&
+      depthOf(this.lines) > 0;
+  }
+
+  hasIdea() {
+    return !this.solved() && this.ideas.size  > 0;
   }
 }
 
 export class StrategicTactic extends SimpleTactic {
-  constructor(name, combination, sequel, solver) {
-    super(name, combination, solver);
+  constructor(name, combination, combo, sequel, solver) {
+    super(name, combination, combo, solver, new Set());
     this.sequel = sequel;
   }
 }

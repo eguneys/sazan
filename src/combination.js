@@ -1,6 +1,6 @@
 import { NodeTree, EdgeIterator } from './node';
 
-export default function Combination(filters, board) {
+export default function Combination(filters, board, startDepth = 0) {
 
   let minibatch = [];
   
@@ -21,14 +21,13 @@ export default function Combination(filters, board) {
     while (true) {
 
       if (!nodeAlreadyUpdated) {
-          node = bestEdge.getOrSpawnNode(node);
+        node = bestEdge.getOrSpawnNode(node);
       }
-
-      // console.log(node.toTailString());
 
       if (node.isTerminal || !node.hasChildren()) {
         return Visit(node, depth);
       }
+
       depth++;
 
       nodeAlreadyUpdated = false;
@@ -36,7 +35,6 @@ export default function Combination(filters, board) {
       var best = -Infinity;
 
       for (var child of node.edges().range()) {
-
         const score = -child.value().getN();
 
         if (score > best) {
@@ -50,23 +48,31 @@ export default function Combination(filters, board) {
   const extendNode = (nodeToProcess) => {
     const { node, depth } = nodeToProcess;
     
+    let lastMove;
     let lastBoard = board;
 
     let cur = node;
     let prev = cur.getParent();
 
     if (prev) {
-      lastBoard = prev.getEdgeToNode(cur).getMove().after;
+      lastMove = prev.getEdgeToNode(cur).getMove();
+      lastBoard = lastMove.move.after;
     }
 
-    let legalMoves;
-    const isMate = lastBoard.isMate();
+    if (lastMove && lastMove.terminate) {
+      node.makeTerminal('win');
+      return;
+    }
 
+    if (lastBoard.isMate()) {
+      node.makeTerminal('win');
+      return;
+    }
 
-    legalMoves = lastBoard.legals(filters(depth));
+    let legalMoves = lastBoard.mapLegals(filters(depth));
 
-    if (isMate) {
-      node.makeTerminal('lose');
+    if (legalMoves.length === 0) {
+      node.makeTerminal('win');
       return;
     }
 
@@ -106,6 +112,8 @@ export default function Combination(filters, board) {
   const doBackupUpdateSingleNode = (nodeToProcess) => {
     let node = nodeToProcess.node;
 
+    let canConvert = node.isTerminal;
+
     let v = 1;
     for (var n = node, p; n !== rootNode.getParent(); n = p) {
       p = n.getParent();
@@ -114,6 +122,19 @@ export default function Combination(filters, board) {
 
       if (!p) {
         break;
+      }
+
+      canConvert = canConvert && p != rootNode && !p.isTerminal;
+
+      if (canConvert) {
+        for (var iEdge of p.edges().range()) {
+          var edge = iEdge.value();
+          canConvert = canConvert && edge.isTerminal();
+        }
+      }
+
+      if (canConvert) {
+        p.makeTerminal('win');
       }
     }
   };
@@ -143,8 +164,11 @@ export default function Combination(filters, board) {
       }
 
       for (var child of node.edges().range()) {
-        const move = child.value().getMove();
-        res[move] = step(child.value().node);
+        const { move, terminate, include } = child.value().getMove();
+        const node = child.value().node;
+        if (node && node.isTerminal) {
+          res[move] = step(node);
+        }
       }
       return res;
     }
@@ -173,5 +197,27 @@ function NodeToProcess(node, depth, isCollision) {
   };
   this.isCollision = () => {
     return isCollision;
+  };
+}
+
+export function Continue(include) {
+  return (move) => {
+    return new CombinationResult(move, false, include);
+  };
+}
+
+export function Terminate(include) {
+  return (move) => {
+    return new CombinationResult(move, true, include);
+  };
+}
+
+function CombinationResult(move, terminate, include) {
+  this.move = move;
+  this.terminate = terminate;
+  this.include = include;
+
+  this.toString = () => {
+    return this.move.uci;
   };
 }

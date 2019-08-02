@@ -74,6 +74,13 @@ export default function Board(fen) {
       .filter(_ => filter ? filter(_.after, _):true);
   };
 
+  this.mapLegals = (f) => {
+    return chess.moves({ verbose: true })
+      .map(_ => new Move(_, this))
+      .map(_ => f(_.after, _)(_))
+      .filter(_ => _.include);
+  };
+
   const withAttackers = (filter) => {
     return (square) => {
       const usColor = this.color(square),

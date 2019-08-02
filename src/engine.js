@@ -12,11 +12,13 @@ export default function Engine(fen) {
     const tactics = TacticSolver.solve(this.board);
 
     const tactics2 = tactics
-          .filter(_ => !_.solved)
-          .map(_ => Tactic2Solver.solve(_, this.board));
+          .filter(_ => _.hasIdea())
+          .flatMap(_ => Tactic2Solver.solve(_, this.board));
 
-    return [...tactics2.filter(solved),
-            ...tactics.filter(solved)];
+    let res = [...tactics.filter(solved)];
+
+    res = [...res, ...tactics2.filter(solved)];
+    return res;
   };
 
 }

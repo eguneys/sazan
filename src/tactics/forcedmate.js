@@ -2,16 +2,22 @@ import { Tactics } from '../solvers';
 
 import Combination from '../combination';
 
-const ForcedMateSolver = (board) => {
+import { Continue, Terminate } from '../combination';
+
+const ForcedMateSolver = (board, startAtDepth) => {
 
   const ideas = new Set();
 
-  const attack = depth => attack => attack.isMate();
+  const attack = attack => attack.isMate();
 
-  const mateCombination = new Combination(attack, board);
+  const filters = depth => board => {
+    return Terminate(attack(board));
+  };
+
+  const mateCombination = new Combination(filters, board, startAtDepth);
   mateCombination.Run();
 
-  return Tactics.ForcedMate(mateCombination.lines(), ideas);
+  return Tactics.ForcedMate(mateCombination.lines());
 };
 
 export default ForcedMateSolver;

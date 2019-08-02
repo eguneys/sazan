@@ -13,6 +13,30 @@ function tactic_is(msg, fen, tactics) {
 
 export default function run() {
 
+  // simpleMates();
+  removeDefender();
+
+}
+
+function removeDefender() {
+  
+  tactic_is('backrank 3', '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 1 3',
+            [Tactics2.RemovalOfDefender(
+              {
+                'Qf7+': { 'Kh8': {} } 
+              },
+              Tactics.BackrankMate({
+                'Qf8+': {
+                  'Bxf8': {
+                    'Rxf8#': {}
+                  }
+                }
+              })
+            )
+            ]);
+}
+
+function forcedMates() {
   // log('one move mate tactics');
 
   // tactic_is('no mate', 'rnb1kbnr/pppp1ppp/8/4p3/5PPq/8/PPPPP2P/RNBQKBNR w KQkq - 1 3', []);
@@ -28,6 +52,11 @@ export default function run() {
   // tactic_is('Bxf3#', '8/pk1N4/n7/b7/1r4B1/5b2/7K/1RR5 w - - 0 1', [new ForcedMateTactic('Bxf3#')]);
 
   // tactic_is('Qe7#', 'r1b5/ppp5/2N2kpN/5q2/8/Q7/7K/4B3 w - - 0 1', [new ForcedMateTactic('Qe7#')]);
+
+ 
+}
+
+function simpleMates() {
 
   log('backrank mate');
   tactic_is('backrank', '6k1/4Rppp/8/8/8/8/5PPP/6K1 w - - 1 3',
@@ -58,18 +87,12 @@ export default function run() {
             [Tactics.BackrankMate({ 'Ra1#': {} }),
              Tactics.ForcedMate({ 'Ra1#': {} })]);
 
-  tactic_is('backrank 3', '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 1 3',
-            [Tactics2.RemovalOfDefender(
-              {
-                'Qf7+': { 'Kh8': {} } 
-              },
-              Tactics.BackrankMate({
-                'Qf8+': {
-                  'Bxf8': {
-                    'Rxf8#': {}
-                  }
+  tactic_is('backrank 3 helper', '7k/3qbQpp/4p3/4P3/8/8/6PP/5RK1 w - - 1 3',
+            [Tactics.BackrankMate({ 
+              'Qf8+': {
+                'Bxf8': {
+                  'Rxf8#': {}
                 }
-              })
-            )
-            ]);
+              }
+            })]);
 }
