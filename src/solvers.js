@@ -38,7 +38,7 @@ export const Tactics = {
 };
 
 export const Tactics2 = {
-  RemovalOfDefender(combination, combo, sequel) {
-    return new StrategicTactic('removalOfDefender', combination, combo, sequel, RemovalOfDefenderSolver);
+  RemovalOfDefender(combination) {
+    return new StrategicTactic('removalOfDefender', combination, 1, RemovalOfDefenderSolver);
   }
 };

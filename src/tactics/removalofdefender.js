@@ -1,6 +1,6 @@
 import Combination from '../combination';
 
-import { Continue, Terminate } from '../combination';
+import { Continue, Terminate, Defend } from '../combination';
 
 import { Tactics2 } from '../solvers';
 
@@ -9,7 +9,6 @@ const RemovalOfDefenderSolver = (tactic, board) => {
     const attack = attack => {
       let f7 = attack.get('f7');
       return f7 && f7.type === 'q';
-      return true;
     };
 
     const defense = defense => {
@@ -17,19 +16,11 @@ const RemovalOfDefenderSolver = (tactic, board) => {
       return !sequel.solved();
     };
 
-    const final = (final) => {
-      let sequel = tactic.solver(final, depth);
-      return sequel.solved();
-    };
-
-
     switch (depth) {
     case 0:
       return Continue(attack(board));
     case 1:
-      return Terminate(defense(board));
-    case 2:
-      return Terminate(final(board, before));
+      return Defend(defense(board));
     default: return Terminate(false);
     }
   };
@@ -38,7 +29,7 @@ const RemovalOfDefenderSolver = (tactic, board) => {
 
   combination.Run();
 
-  return Tactics2.RemovalOfDefender(combination.lines(), 3);
+  return Tactics2.RemovalOfDefender(combination.lines());
 };
 
 export default RemovalOfDefenderSolver;

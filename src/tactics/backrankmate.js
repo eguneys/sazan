@@ -58,7 +58,11 @@ const BackrankMateSolver = (board, startAtDepth = 0) => {
 
     switch (depth) {
     case 0:
-      return Continue(attack(board));
+      if (final(board)) {
+        return Terminate(true);
+      } else {
+        return Continue(attack(board));
+      }
     case 1:
       return Continue(defense(board));
     case 2:

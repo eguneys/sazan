@@ -13,26 +13,18 @@ function tactic_is(msg, fen, tactics) {
 
 export default function run() {
 
-  // simpleMates();
+  simpleMates();
   removeDefender();
 
 }
 
 function removeDefender() {
-  
+
   tactic_is('backrank 3', '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 1 3',
             [Tactics2.RemovalOfDefender(
               {
-                'Qf7+': { 'Kh8': {} } 
-              },
-              Tactics.BackrankMate({
-                'Qf8+': {
-                  'Bxf8': {
-                    'Rxf8#': {}
-                  }
-                }
+                'Qf7+': {}
               })
-            )
             ]);
 }
 

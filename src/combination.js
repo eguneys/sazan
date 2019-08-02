@@ -64,15 +64,15 @@ export default function Combination(filters, board, startDepth = 0) {
       return;
     }
 
-    if (lastBoard.isMate()) {
-      node.makeTerminal('win');
-      return;
-    }
-
     let legalMoves = lastBoard.mapLegals(filters(depth));
 
-    if (legalMoves.length === 0) {
-      node.makeTerminal('win');
+    if (legalMoves.length > 0 && 
+        legalMoves.every(_ => !!_.defense)) {
+      legalMoves = legalMoves.filter(_ => _.defense.defended);
+
+      if (legalMoves.length === 0) {
+        node.makeTerminal('win');
+      }
       return;
     }
 
@@ -212,10 +212,18 @@ export function Terminate(include) {
   };
 }
 
-function CombinationResult(move, terminate, include) {
+export function Defend(defended) {
+  return (move) => {
+    return new CombinationResult(move, false, true, {defended});
+  };
+}
+
+function CombinationResult(move, terminate, include, defended) {
   this.move = move;
   this.terminate = terminate;
   this.include = include;
+
+  this.defense = defended;
 
   this.toString = () => {
     return this.move.uci;

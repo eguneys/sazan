@@ -49,8 +49,7 @@ export class SimpleTactic extends Tactic {
 }
 
 export class StrategicTactic extends SimpleTactic {
-  constructor(name, combination, combo, sequel, solver) {
+  constructor(name, combination, combo, solver) {
     super(name, combination, combo, solver, new Set());
-    this.sequel = sequel;
   }
 }
