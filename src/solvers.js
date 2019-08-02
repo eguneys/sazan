@@ -1,9 +1,11 @@
 import { SimpleTactic } from './tactics';
 import { StrategicTactic } from './tactics';
 
-import RemovalOfDefenderSolver from './tactics/removalofdefender';
+import DeflectionSolver from './tactics/deflection';
 import BackrankMateSolver from './tactics/backrankmate';
 import ForcedMateSolver from './tactics/forcedmate';
+
+import SkewerSolver from './tactics/skewer';
 
 export const TacticSolver = {
   solve(board) {
@@ -20,25 +22,29 @@ export const Tactic2Solver = {
 };
 
 export const Tactic2Solvers = [
-  RemovalOfDefenderSolver
+  DeflectionSolver
 ];
 
 export const TacticSolvers = [
+  SkewerSolver,
   BackrankMateSolver,
   ForcedMateSolver
 ];
 
 export const Tactics = {
-  BackrankMate(combination, ideas = new Set()) {
+  BackrankMate(combination, ideas) {
     return new SimpleTactic('backrankMate', combination, 3, BackrankMateSolver, ideas);
   },
-  ForcedMate(combination, ideas = new Set()) {
+  ForcedMate(combination, ideas) {
     return new SimpleTactic('forcedMate', combination, 1, ForcedMateSolver, ideas);
+  },
+  Skewer(combination) {
+    return new SimpleTactic('skewer', combination, 1, SkewerSolver);
   }
 };
 
 export const Tactics2 = {
-  RemovalOfDefender(combination) {
-    return new StrategicTactic('removalOfDefender', combination, 1, RemovalOfDefenderSolver);
+  Deflection(combination) {
+    return new StrategicTactic('deflection', combination, 1, DeflectionSolver);
   }
 };

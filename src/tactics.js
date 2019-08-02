@@ -31,7 +31,7 @@ class Tactic {
 }
 
 export class SimpleTactic extends Tactic {
-  constructor(name, combination, combo, solver, ideas) {
+  constructor(name, combination, combo, solver, ideas = new Set()) {
     super(name, solver);
     this.lines = combination;
     this.ideas = ideas;

@@ -1,19 +1,12 @@
 import { deep_is, is, ok, not, log } from 'testiz/browser';
 
-import { set_is, withEngine } from './util';
+import { tactic_is, withEngine } from './util';
 
 import { Tactics, Tactics2 } from '../solvers';
 
-function tactic_is(msg, fen, tactics) {
-  withEngine(engine => {
-    const actual = engine.tactics();
-    deep_is(msg, actual, tactics);
-  }, fen);  
-}
-
 export default function run() {
 
-  simpleMates();
+  backrankMate();
   removeDefender();
 
 }
@@ -48,7 +41,7 @@ function forcedMates() {
  
 }
 
-function simpleMates() {
+function backrankMate() {
 
   log('backrank mate');
   tactic_is('backrank', '6k1/4Rppp/8/8/8/8/5PPP/6K1 w - - 1 3',

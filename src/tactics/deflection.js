@@ -4,7 +4,7 @@ import { Continue, Terminate, Defend } from '../combination';
 
 import { Tactics2 } from '../solvers';
 
-const RemovalOfDefenderSolver = (tactic, board) => {
+const DeflectionSolver = (tactic, board) => {
   const filters = depth => (board) => {
     const attack = attack => {
       let f7 = attack.get('f7');
@@ -29,7 +29,7 @@ const RemovalOfDefenderSolver = (tactic, board) => {
 
   combination.Run();
 
-  return Tactics2.RemovalOfDefender(combination.lines());
+  return Tactics2.Deflection(combination.lines());
 };
 
-export default RemovalOfDefenderSolver;
+export default DeflectionSolver;

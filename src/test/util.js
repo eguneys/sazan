@@ -22,8 +22,9 @@ export function is_mate(msg, fen, v = true) {
 
 export function tactic_is(msg, fen, tactics) {
   withEngine(engine => {
-    set_is(msg, engine.tactic(), tactics);
-  }, fen);
+    const actual = engine.tactics();
+    deep_is(msg, actual, tactics);
+  }, fen);  
 }
 
 export const set_is = runtest(matcher((a, b) => {
