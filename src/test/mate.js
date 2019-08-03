@@ -1,15 +1,21 @@
 import { deep_is, is, ok, not, log } from 'testiz/browser';
 
-import { strategy_is } from './util';
+import { play_is } from './util';
 
 import * as Strategy from '../strategy';
 
 export default function run() {
 
-  // strategy_is('Qxf7#', '3qk3/3ppp2/8/8/2B5/5Q2/3K4/8 w - - 0 1', 
-  //             Strategy.ForcedMate, 'Qxf7#');
+  // play_is('Qxf7#', '3qk3/3ppp2/8/8/2B5/5Q2/3K4/8 w - - 0 1', 
+  //         'Qxf7#');
+
+  // play_is('Rxa1#', '8/1p6/kp6/1p6/8/8/5PPP/5RK1 w - - 0 1', 
+  //         'Ra1#');
+
   
-  strategy_is('mate in 2', '2r1r1k1/5ppp/8/8/Q7/8/5PPP/4R1K1 w - - 1 3', Strategy.Deflection, 'Qxe8+');
+  // play_is('mate in 2', '2r1r1k1/5ppp/8/8/Q7/8/5PPP/4R1K1 w - - 1 3', 'Qxe8+');
+
+  play_is('mate after Qf7+', '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1', 'Qf7+');
 
 }
 

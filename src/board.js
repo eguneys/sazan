@@ -57,8 +57,7 @@ export default function Board(fen) {
     });
   };
 
-  this.king = (us = true) => {
-    let color = us ? this.turn() : this.opponent();
+  this.king = (color) => {
     return this.piece(color, 'k');
   };
 
@@ -74,9 +73,8 @@ export default function Board(fen) {
   };
 
   const withAttackers = (filter) => {
-    return (square) => {
-      const usColor = this.color(square),
-            us = this.attackersWithCapture(square, usColor),
+    return (square, usColor = this.turn()) => {
+      const us = this.attackersWithCapture(square, usColor),
             them = this.attackersWithCapture
       (square,
        util.opposite(usColor));
@@ -87,6 +85,11 @@ export default function Board(fen) {
 
   this.hanging = withAttackers((us, them) => 
     Object.keys(us).length < Object.keys(them).length
+  );
+
+  this.controlSquare = withAttackers((us, them) =>
+    Object.keys(us).length > Object.keys(them).length &&
+      Object.keys(us).length > 0
   );
 
   this.weak = withAttackers((us, them) =>

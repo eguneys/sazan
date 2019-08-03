@@ -23,28 +23,11 @@ export function is_mate(msg, fen, v = true) {
   }, fen);
 }
 
-
-export function strategy_is(msg, fen, strategy, move) {
+export function play_is(msg, fen, move) {
   const board = new Board(fen),
         actual = play(board);
 
-  move = board.legals().find(_ => _.uci === move);
-
-  const expected = strategy(move);
-
-  deep_is(msg, {
-    name: actual.name,
-    move: actual.move
-  }, { name: expected.name,
-       move: expected.move
-     });
-}
-
-export function tactic_is(msg, fen, tactics) {
-  withEngine(engine => {
-    const actual = engine.tactics();
-    deep_is(msg, actual, tactics);
-  }, fen);  
+  is(msg, actual, move);
 }
 
 export const set_is = runtest(matcher((a, b) => {
@@ -58,3 +41,28 @@ export const set_is = runtest(matcher((a, b) => {
   b = new Set(b);
   return eqSet(a, b);
 }, '!='));
+
+
+// export function strategy_is(msg, fen, strategy, move) {
+//   const board = new Board(fen),
+//         actual = play(board);
+
+//   move = board.legals().find(_ => _.uci === move);
+
+//   const expected = strategy(move);
+
+//   deep_is(msg, {
+//     name: actual.name,
+//     move: actual.move
+//   }, { name: expected.name,
+//        move: expected.move
+//      });
+// }
+
+// export function tactic_is(msg, fen, tactics) {
+//   withEngine(engine => {
+//     const actual = engine.tactics();
+//     deep_is(msg, actual, tactics);
+//   }, fen);  
+// }
+

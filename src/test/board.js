@@ -10,6 +10,26 @@ function withVisualBoard(board, f) {
 
 export default function run() {
 
+  
+
+  withVisualBoard(`
+rnbqkbnr
+pppppppp
+        
+  q  q  
+   R    
+  r    
+PPPPPPPP
+RNBQKBNR
+`, board => {
+
+  is('white king place', 'e1', board.king('w'));
+  is('black king place', 'e8', board.king('b'));
+  
+  is('white controls e2', true, board.controlSquare('e2', 'w'));
+  is('black doesnt control e2', false, board.controlSquare('e2', 'b'));
+});  
+
   withVisualBoard(`
 rnbqkbnr
 pppppppp
@@ -23,7 +43,7 @@ RNBQKBNR
 
   log('attackers');
 
-  is('f2 side', 'w', board.side('f2'));
+  is('f2 side', 'w', board.color('f2'));
 
   deep_is('c3', { 'b1': {},
                   'b2': {},
