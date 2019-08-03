@@ -72,30 +72,6 @@ export default function Board(fen) {
       .map(_ => new Move(_, this));
   };
 
-  const withAttackers = (filter) => {
-    return (square, usColor = this.turn()) => {
-      const us = this.attackersWithCapture(square, usColor),
-            them = this.attackersWithCapture
-      (square,
-       util.opposite(usColor));
-
-      return filter(us, them);
-    };
-  };
-
-  this.hanging = withAttackers((us, them) => 
-    Object.keys(us).length < Object.keys(them).length
-  );
-
-  this.controlSquare = withAttackers((us, them) =>
-    Object.keys(us).length > Object.keys(them).length &&
-      Object.keys(us).length > 0
-  );
-
-  this.weak = withAttackers((us, them) =>
-    Object.keys(us).length === Object.keys(them).length
-  );
-
   this.mobility = (square) => {
     const movements = this.movements(square);
     const res = [];
@@ -168,11 +144,21 @@ export default function Board(fen) {
     return res;
   };
 
-  this.attackersWithColor = (color, square, direction) => {
+  this.attackersWithColor = (square, color, direction) => {
     return this.attackersWith(key => this.get(key).color === color,
                        square, direction);
   };
 
+  this.attackersByColor = (map) => {
+    return (square, usColor = this.turn()) => {
+      const us = this.attackersWithColor(square, usColor),
+            them = this.attackersWithColor
+      (square,
+       util.opposite(usColor));
+
+      return map(us, them);
+    };
+  };
 
   this.attackersWithCapture = (square, color) => {
     return this.attackersWith((key, o) =>

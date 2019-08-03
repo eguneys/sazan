@@ -1,13 +1,12 @@
 import { deep_is, is, ok, not, log } from 'testiz/browser';
 
-import { best_is } from './util';
+import { play_is, best_is } from './util';
 
 import * as Strategy from '../strategy';
 
 export default function run() {
 
-  best_is('backrank mate #4', '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1', 'Qf7+');
-
+  play_is('backrank mate #4', '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1', 'Qf7+');
 
 
   // play_is('Qxf7#', '3qk3/3ppp2/8/8/2B5/5Q2/3K4/8 w - - 0 1', 

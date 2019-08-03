@@ -20,7 +20,8 @@ capture the square hint, filters moves that captures the square
 attack the square hint, filters moves that attacks the square
 move to the square hint, filters moves that moves to the square
 
-In [this situation](6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1), Hint is to take f8 square but it's not hanging, so a child hint is to deflect a black piece from it's defense in this case it's bishop or the king.
+In [this situation](6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1), 
+trap the king, control g8 and h8, take a8 but blocks, take f8 but hangs, deflect f8 square defenders
 
 Deprecated Ideas
 =

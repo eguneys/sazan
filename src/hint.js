@@ -14,7 +14,16 @@ function mul(a, b) {
   return a * b;
 }
 
-function logMove(msg, move, actual) {
+function reduceScale(weights) {
+  const scale = 1 / weights.length;
+  return weights.reduce((acc, _) => acc + _ * scale, 0);
+}
+
+function rightScale(scale) {
+  return (a, b) => a + b * scale;
+}
+
+function logMove(move, msg, actual) {
   if (move === actual.uci) {
     console.log(msg);
   }
@@ -42,10 +51,8 @@ function objLength(obj) {
   return Object.keys(obj).length;
 }
 
-function weight(filter, weight) {
-  return (_) => {
-    return filter(_) * weight;
-  };
+function weight(x, weight) {
+  return x * weight;
 }
 
 function hack() {
@@ -59,26 +66,23 @@ function hack() {
 
 export function weightMove(a) {
   const weights = [
-    weight(hack(), 0.45),
-    weight(mate(), 0.5),
-    weight(backrankMateIdea(), 0.25)];
+    weight(mate()(a), 0.4),
+    weight(trapKing()(a), 0.4)
+  ];
 
-  return weights.reduce((acc, _) => acc + _(a), 0);
+  return weights.reduce(sum);
 }
 
-export function backrankMateIdea() {
+export function trapKing() {
   return move => {
-    const before = move.before;
+    const before = move.before,
+          after = move.after;
 
-    const king = before.king(util.opposite(before.turn()));
+    const king = after.king(after.turn());
 
-    const kingMobility = before.mobility(king);
+    const kingMobility = after.mobility(king);
 
-    if (kingMobility.length) {
-      return controlSquares(kingMobility)(move);
-    } else {
-      return 0;
-    }
+    return controlSquares(kingMobility, king)(move);
   };
 };
 
@@ -89,25 +93,36 @@ export function mate() {
   };
 }
 
-export function controlSquares(squares) {
+export function controlSquares(squares, trap) {
   return move => {
+    if (trap) squares = [...squares, trap];
+
     const scale = 1/squares.length;
 
-    return squares.map(_ => controlASquare(_)(move))
-      .reduce((acc, _) => acc + _*scale);
+    return squares.map(_ => controlASquare(_, trap)(move))
+      .reduce(rightScale(scale), 0);
   };
 }
 
-export function controlASquare(square) {
+export function controlASquare(square, trap) {
   return move => {
     const us = move.before.turn();
     const after = move.after;
 
-    if (after.controlSquare(square, us)) {
-      return 1;
-    } else {
-      return deflectTheSquare(square)(move);
-    }
+    // if (move.uci === 'Qa8+') {
+    //   debugger;
+    // }
+
+    return after.attackersByColor((us, them) => {
+
+      let control = Object.values(mapObj(us, (key, a) => weightAttack(key, a, trap)(move)));
+      control = reduceScale(control);
+      let deflect = deflectTheSquare(square)(move);
+
+      return [weight(control, 0.75),
+              weight(deflect, 0.25)]
+        .reduce(sum);
+    })(square, us);
   };
 }
 
@@ -118,19 +133,23 @@ export function deflectTheSquare(square) {
     const scale = 1/objLength(defenders);
 
     return Object.values(mapObj(defenders, (key, _) => {
-      return [weight(attackSquare(key), 0.25),
-              weight(captureSquare(key), 0.75)];
-    })).flat()
-      .map(_ => _(move))
-      .reduce((acc, _) => (acc + _ * scale), 0);
+      return [weight(attackSquare(key)(move), 0.25),
+              weight(captureSquare(key)(move), 0.75)]
+        .reduce(rightScale(scale));
+    })).reduce(sum, 0);
   };
 }
 
-function weightAttack(attack) {
-  if (!attack.blocking) {
-    return 1;
-  }
-  return 1/(attack.blocking.length + 1);
+function weightAttack(attacker, attack) {
+  return move => {
+    const after = move.after;
+
+    const weights = [
+      weight(attack.blocking?1/(attack.blocking.length+1):1, 0.4),
+      weight(weightOutpost(after.outpost()), 0.4)
+    ];
+    return weights.reduce(sum);
+  };
 }
 
 export function attackSquare(square) {
@@ -141,8 +160,8 @@ export function attackSquare(square) {
     const attackBefore = before.attackers(square),
           attackAfter = after.attackers(square);
 
-    const resBefore = Object.values(mapObj(attackBefore, (_, a) => weightAttack(a))),
-          resAfter = Object.values(mapObj(attackAfter, (_, a) => weightAttack(a)));
+    const resBefore = Object.values(mapObj(attackBefore, (key, a) => weightAttack(key, a)(move))),
+          resAfter = Object.values(mapObj(attackAfter, (key, a) => weightAttack(key, a)(move)));
 
     const wBefore = resBefore.reduce(sum, 0),
           wAfter = resAfter.reduce(sum, 0);

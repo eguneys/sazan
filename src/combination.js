@@ -160,10 +160,9 @@ export default function Combination(board) {
         p.makeTerminal('win');
       }
     }
-    console.log(node.toTailString(), n.getQ());
-    if (node.getParent()) {
-      console.log(node.getOwnEdge().getMove().move.uci);
-    }
+    // if (node.getParent()) {
+    //   console.log(node.getOwnEdge().getMove().move.uci);
+    // }
   };
   
 
@@ -178,15 +177,13 @@ export default function Combination(board) {
   };
 
   this.Run = () => {
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < 30; i++) {
       executeOneIteration();
     }
   };
 
   this.lines = () => {
     const edges = [];
-
-    console.log(rootNode.toShortString(10));
 
     for (var iEdge of rootNode.edges().range()) {
       var edge = iEdge.value();

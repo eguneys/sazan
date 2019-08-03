@@ -10,7 +10,7 @@ export default function Engine(fen) {
     const combination = new Combination(this.board);
     combination.Run();
 
-    return combination.lines();
+    return combination.lines()[0].move.uci;
   };
 
 }
