@@ -1,28 +1,16 @@
 import Board from './board';
 
-import { TacticSolver, Tactic2Solver } from './solvers';
+import Combination from './combination';
 
 export default function Engine(fen) {
 
   this.board = new Board(fen);
 
-  const solved = _ => _.solved();
+  this.findBestMove = () => {
+    const combination = new Combination(this.board);
+    combination.Run();
 
-  this.tactics = () => {
-    const tactics = TacticSolver.solve(this.board);
-
-    const tactics2 = tactics
-          .filter(_ => _.hasIdea())
-          .flatMap(_ => Tactic2Solver.solve(_, this.board));
-
-    let res = [...tactics.filter(solved)];
-
-    res = [...res, ...tactics2.filter(solved)];
-    return res;
-  };
-
-  this.play = () => {
-    
+    return combination.lines();
   };
 
 }

@@ -9,7 +9,16 @@ export default function play(board) {
   const best = weights.reduce((acc, _) => acc.p>_.p?acc:_).uci;
 
 
+  const values = legals.map(_ => ({
+    move: _,
+    v: weightMove(_),
+    toString: () => {
+      return _.uci;
+    }
+  }));
+
   return {
+    values,
     weights,
     best
   };

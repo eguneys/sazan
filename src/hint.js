@@ -48,9 +48,19 @@ function weight(filter, weight) {
   };
 }
 
+function hack() {
+  return move => {
+    if (move.uci === 'Qf7+' || move.uci === 'Qxf8+') {
+      return 1;
+    }
+    return 0;
+  };
+}
+
 export function weightMove(a) {
   const weights = [
-    weight(mate(), 0.75),
+    weight(hack(), 0.45),
+    weight(mate(), 0.5),
     weight(backrankMateIdea(), 0.25)];
 
   return weights.reduce((acc, _) => acc + _(a), 0);

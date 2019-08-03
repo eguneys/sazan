@@ -1,6 +1,8 @@
 import { NodeTree, EdgeIterator } from './node';
 
-export default function Combination(filters, board, startDepth = 0) {
+import play from './play';
+
+export default function Combination(board) {
 
   let minibatch = [];
   
@@ -24,19 +26,23 @@ export default function Combination(filters, board, startDepth = 0) {
         node = bestEdge.getOrSpawnNode(node);
       }
 
+      depth++;
+
       if (node.isTerminal || !node.hasChildren()) {
         return Visit(node, depth);
       }
 
-      depth++;
-
       nodeAlreadyUpdated = false;
 
+      const cpuct = 1;
+      const puctMult = 
+            cpuct * Math.sqrt(Math.max(node.getChildrenVisits(), 1));
       var best = -Infinity;
+      const fpu = 1;
 
       for (var child of node.edges().range()) {
-        const score = -child.value().getN();
-
+        const Q = child.value().getQ(fpu);
+        const score = child.value().getU(puctMult) + Q;
         if (score > best) {
           best = score;
           bestEdge = child;
@@ -59,24 +65,14 @@ export default function Combination(filters, board, startDepth = 0) {
       lastBoard = lastMove.move.after;
     }
 
-    if (lastMove && lastMove.terminate) {
+    if (lastBoard.isMate()) {
       node.makeTerminal('win');
       return;
     }
 
-    let legalMoves = lastBoard.mapLegals(filters(depth));
+    let { values } = play(lastBoard);
 
-    if (legalMoves.length > 0 && 
-        legalMoves.every(_ => !!_.defense)) {
-      legalMoves = legalMoves.filter(_ => _.defense.defended);
-
-      if (legalMoves.length === 0) {
-        node.makeTerminal('win');
-      }
-      return;
-    }
-
-    node.createEdges(legalMoves);
+    node.createEdges(values);
   };
 
   const initializeIteration = () => {
@@ -99,7 +95,29 @@ export default function Combination(filters, board, startDepth = 0) {
   };
 
   const fetchSingleNodeResult = (nodeToProcess) => {
-    
+    const { node } = nodeToProcess;
+    nodeToProcess.v = node.getQ();
+
+    if (node.getParent()) {
+      nodeToProcess.v = node.getOwnEdge().getMove().v;
+    }
+
+    let total = 0;
+    for (var iEdge of node.edges().range()) {
+      var edge = iEdge.value();
+      var p = edge.getMove().v;
+      edge.edge.setP(p);
+      total += edge.getP();
+    }
+
+
+    if (total > 0) {
+      const scale = 1 / total;
+      for (iEdge of node.edges().range()) {
+        edge = iEdge.value();
+        edge.edge.setP(edge.getP() * scale);
+      }
+    }
   };
 
 
@@ -114,10 +132,15 @@ export default function Combination(filters, board, startDepth = 0) {
 
     let canConvert = node.isTerminal;
 
-    let v = 1;
+
+    let v = nodeToProcess.v;
     for (var n = node, p; n !== rootNode.getParent(); n = p) {
       p = n.getParent();
-      
+
+      if (n.isTerminal) {
+        v = n.getQ();
+      }
+
       n.finalizeScoreUpdate(v);
 
       if (!p) {
@@ -137,6 +160,10 @@ export default function Combination(filters, board, startDepth = 0) {
         p.makeTerminal('win');
       }
     }
+    console.log(node.toTailString(), n.getQ());
+    if (node.getParent()) {
+      console.log(node.getOwnEdge().getMove().move.uci);
+    }
   };
   
 
@@ -151,28 +178,42 @@ export default function Combination(filters, board, startDepth = 0) {
   };
 
   this.Run = () => {
-    for (var i = 0; i < 30; i++) {
+    for (var i = 0; i < 100; i++) {
       executeOneIteration();
     }
   };
 
   this.lines = () => {
-    function step(node) {
-      var res = {};
-      if (!node) {
-        return res;
-      }
+    const edges = [];
 
-      for (var child of node.edges().range()) {
-        const { move, terminate, include } = child.value().getMove();
-        const node = child.value().node;
-        if (node && node.isTerminal) {
-          res[move] = step(node);
+    console.log(rootNode.toShortString(10));
+
+    for (var iEdge of rootNode.edges().range()) {
+      var edge = iEdge.value();
+      edges.push({ n: edge.getN(), q: edge.getQ(0), p: edge.getP(), value: edge });
+    }
+    edges.sort((a, b) => {
+      let n = b.n - a.n,
+          p = n;
+
+      if (p === 0) {
+        p = b.q - a.q;
+        if (p === 0) {
+          p = b.p - a.p;
         }
       }
-      return res;
-    }
-    return step(rootNode);
+      return p;
+    });
+
+    edges.reduce((acc, edge) => {
+      if (edge.q > acc.mq) {
+        return acc;
+      }
+      return { mq: edge.q };
+    }, { mq: 1 });
+
+    var res = edges.map(_ => _.value.getMove());
+    return res;
   };
 }
 
@@ -197,35 +238,5 @@ function NodeToProcess(node, depth, isCollision) {
   };
   this.isCollision = () => {
     return isCollision;
-  };
-}
-
-export function Continue(include) {
-  return (move) => {
-    return new CombinationResult(move, false, include);
-  };
-}
-
-export function Terminate(include) {
-  return (move) => {
-    return new CombinationResult(move, true, include);
-  };
-}
-
-export function Defend(defended) {
-  return (move) => {
-    return new CombinationResult(move, false, true, {defended});
-  };
-}
-
-function CombinationResult(move, terminate, include, defended) {
-  this.move = move;
-  this.terminate = terminate;
-  this.include = include;
-
-  this.defense = defended;
-
-  this.toString = () => {
-    return this.move.uci;
   };
 }

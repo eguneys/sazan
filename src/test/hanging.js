@@ -1,7 +1,5 @@
 import { is, ok, not, log } from 'testiz/browser';
 
-import { bestMove } from './util';
-
 export default function run() {
   
   log('hanging');

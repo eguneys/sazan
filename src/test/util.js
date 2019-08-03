@@ -30,6 +30,12 @@ export function play_is(msg, fen, move) {
   is(msg, actual.best, move);
 }
 
+export function best_is(msg, fen, lines) {
+  withEngine(engine => {
+    deep_is(msg, engine.findBestMove(), lines);
+  }, fen);
+}
+
 export const set_is = runtest(matcher((a, b) => {
   function eqSet(as, bs) {
     if (as.size !== bs.size) return false;

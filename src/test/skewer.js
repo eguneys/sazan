@@ -1,8 +1,6 @@
 import { deep_is, is, ok, not, log } from 'testiz/browser';
 
-import { tactic_is, set_is, withEngine } from './util';
-
-import { Tactics, Tactics2 } from '../solvers';
+import { set_is, withEngine } from './util';
 
 export default function run() {
 
