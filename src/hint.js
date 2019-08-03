@@ -48,15 +48,12 @@ function weight(filter, weight) {
   };
 }
 
-export function betterMove(a, b) {
+export function weightMove(a) {
   const weights = [
-    weight(mate(), 1),
-    weight(backrankMateIdea(), 0.5)];
+    weight(mate(), 0.75),
+    weight(backrankMateIdea(), 0.25)];
 
-  const weightA = weights.reduce((acc, _) => acc + _(a), 0),
-        weightB = weights.reduce((acc, _) => acc + _(b), 0);
-
-  return weightA > weightB ?a:b;
+  return weights.reduce((acc, _) => acc + _(a), 0);
 }
 
 export function backrankMateIdea() {
@@ -111,8 +108,8 @@ export function deflectTheSquare(square) {
     const scale = 1/objLength(defenders);
 
     return Object.values(mapObj(defenders, (key, _) => {
-      return [weight(attackSquare(key), 0.5),
-              weight(captureSquare(key), 1)];
+      return [weight(attackSquare(key), 0.25),
+              weight(captureSquare(key), 0.75)];
     })).flat()
       .map(_ => _(move))
       .reduce((acc, _) => (acc + _ * scale), 0);

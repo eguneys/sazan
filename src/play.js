@@ -1,12 +1,16 @@
-import { betterMove } from './hint';
+import { weightMove } from './hint';
 
 export default function play(board) {
 
   let legals = board.legals();
 
-  const best = legals.reduce((acc, move) => {
-    return betterMove(acc, move);
-  });
+  const weights = legals.map(_ => ({ uci: _.uci, p: weightMove(_) }));
 
-  return best.uci;
+  const best = weights.reduce((acc, _) => acc.p>_.p?acc:_).uci;
+
+
+  return {
+    weights,
+    best
+  };
 }

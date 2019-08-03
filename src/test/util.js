@@ -27,7 +27,7 @@ export function play_is(msg, fen, move) {
   const board = new Board(fen),
         actual = play(board);
 
-  is(msg, actual, move);
+  is(msg, actual.best, move);
 }
 
 export const set_is = runtest(matcher((a, b) => {
