@@ -21,4 +21,8 @@ export default function Engine(fen) {
     return res;
   };
 
+  this.play = () => {
+    
+  };
+
 }

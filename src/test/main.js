@@ -10,8 +10,8 @@ export function Tests() {
   // board();
   // fen();
   // rules();
-  // mate();
+  mate();
   // hanging();
-  skewer();
+  // skewer();
   
 }

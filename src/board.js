@@ -68,17 +68,9 @@ export default function Board(fen) {
     return res.map(_ => _.to);
   };
 
-  this.legals = (filter) => {
+  this.legals = () => {
     return chess.moves({ verbose: true })
-      .map(_ => new Move(_, this))
-      .filter(_ => filter ? filter(_.after, _):true);
-  };
-
-  this.mapLegals = (f) => {
-    return chess.moves({ verbose: true })
-      .map(_ => new Move(_, this))
-      .map(_ => f(_.after, _)(_))
-      .filter(_ => _.include);
+      .map(_ => new Move(_, this));
   };
 
   const withAttackers = (filter) => {
