@@ -1,24 +1,28 @@
 import { weightMove } from './hint';
 
-export default function play(board) {
+export default function play(board, filter, depth = 0) {
 
   let legals = board.legals();
 
-  const weights = legals.map(_ => ({ uci: _.uci, p: weightMove(_) }));
+  filter = filter?filter:() => true;
 
-  const best = weights.reduce((acc, _) => acc.p>_.p?acc:_).uci;
+  legals = legals.filter(filter);
+
+  const weights = legals.map(_ => ({ uci: _.uci, p: weightMove(_, depth) }));
+
+  const best = weights.length > 0 && weights.reduce((acc, _) => acc.p>_.p?acc:_);
 
 
-  const values = legals.map(_ => ({
-    move: _,
-    v: weightMove(_),
-    toString: () => {
-      return _.uci;
-    }
-  }));
+  // const values = legals.map(_ => ({
+  //   move: _,
+  //   v: weightMove(_, depth),
+  //   toString: () => {
+  //     return _.uci;
+  //   }
+  // }));
 
   return {
-    values,
+    // values,
     weights,
     best
   };

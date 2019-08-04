@@ -1,4 +1,7 @@
 import * as util from './util';
+import play from './play';
+
+const max_depth = 1;
 
 function scale(scale) {
   return (a, b) => {
@@ -25,7 +28,7 @@ function rightScale(scale) {
 
 function logMove(move, msg, actual) {
   if (move === actual.uci) {
-    console.log(msg);
+    console.log(move + ' ' + msg);
   }
 }
 
@@ -64,17 +67,17 @@ function hack() {
   };
 }
 
-export function weightMove(a) {
+export function weightMove(a, depth) {
   const weights = [
     weight(mate()(a), 0.4),
-    weight(trapKing()(a), 0.4)
+    weight(trapKing()(a, depth), 0.4)
   ];
 
   return weights.reduce(sum);
 }
 
 export function trapKing() {
-  return move => {
+  return (move, depth) => {
     const before = move.before,
           after = move.after;
 
@@ -82,7 +85,7 @@ export function trapKing() {
 
     const kingMobility = after.mobility(king);
 
-    return controlSquares(kingMobility, king)(move);
+    return controlSquares(kingMobility, king)(move, depth);
   };
 };
 
@@ -94,18 +97,26 @@ export function mate() {
 }
 
 export function controlSquares(squares, trap) {
-  return move => {
+  return (move, depth) => {
     if (trap) squares = [...squares, trap];
 
     const scale = 1/squares.length;
 
-    return squares.map(_ => controlASquare(_, trap)(move))
-      .reduce(rightScale(scale), 0);
+    let res = squares.map(_ => controlASquare(_, trap)(move, depth));
+
+    
+    // logMove('Qf7+', res.reduce(rightScale(scale), 0), move);
+    // logMove('Qf7+', squares, move);
+    // logMove('Qf8+', res.reduce(rightScale(scale), 0), move);
+    // logMove('Qf8+', squares, move);
+    res = res.reduce(rightScale(scale), 0);
+    return res;
   };
 }
 
 export function controlASquare(square, trap) {
-  return move => {
+  return (move, depth) => {
+
     const us = move.before.turn();
     const after = move.after;
 
@@ -115,46 +126,77 @@ export function controlASquare(square, trap) {
 
     return after.attackersByColor((us, them) => {
 
-      let control = Object.values(mapObj(us, (key, a) => weightAttack(key, a, trap)(move)));
-      control = reduceScale(control);
-      let deflect = deflectTheSquare(square)(move);
+      let control = Object.values(mapObj(us, (key, a) => weightAttack(square, key, a, trap)(move, depth)));
 
-      return [weight(control, 0.75),
-              weight(deflect, 0.25)]
+      control = reduceScale(control);
+      let deflect = deflectTheSquare(square)(move, depth);
+
+
+      logMove('Qf8+', square + JSON.stringify(control) + ' ' + deflect, move);
+      logMove('Qf7+', square + JSON.stringify(control) + ' ' + deflect , move);
+
+
+      return [weight(control, 0.45),
+              weight(deflect, 0.55)]
         .reduce(sum);
     })(square, us);
   };
 }
 
 export function deflectTheSquare(square) {
-  return move => {
+  return (move, depth) => {
     const defenders = move.before.attackers(square);
 
     const scale = 1/objLength(defenders);
 
     return Object.values(mapObj(defenders, (key, _) => {
-      return [weight(attackSquare(key)(move), 0.25),
-              weight(captureSquare(key)(move), 0.75)]
-        .reduce(sum, 0);
-    })).reduce(rightScale(scale));
+      return [weight(attackSquare(key)(move, depth), 0.25),
+              weight(captureSquare(key)(move, depth), 0.75)]
+        .reduce(sum);
+    })).reduce(rightScale(scale), 0);
 
   };
 }
 
-function weightAttack(attacker, attack, trap, noOutpost) {
-  return move => {
+function weightAttack(attacked, attacker, attack, trap, noOutpost) {
+  function blockAttackFilter(move) {
+    const before = move.before;
+    const after = move.after;
+
+    const defense = after.attacks(attacker)[attacked];
+
+    return defense && defense.blocking && defense.blocking.length > 0;
+  }
+
+  return (move, depth) => {
     const after = move.after;
 
     const weights = [
-      weight(attack.blocking?1/(attack.blocking.length+1):1, 0.4),
-      weight(noOutpost?0:weightOutpost(after.outpost(attacker))(move), 0.4)
+      weight(attack.danger?0:1, 0.2),
+      weight(attack.blocking?1/(attack.blocking.length+1):1, noOutpost?0.6:0.1),
+      weight(noOutpost?0:weightOutpost(attacker, after.outpost(attacker))(move, depth), 0.5)
     ];
+
+    if (false && !noOutpost) {
+      logMove('Qf8+', attacked + ' o ' + JSON.stringify(weights) + ' ' , move);
+      logMove('Qf7+', attacked + ' o ' + JSON.stringify(weights) + ' ' , move);
+    }
+
+    if (depth < max_depth && !attack.blocking) {
+      const counter = play(move.after, blockAttackFilter, depth + 1);
+
+      if (!counter.best) {
+        weights.push(0.2);
+      }
+    }
+
+
     return weights.reduce(sum);
   };
 }
 
-function weightOutpost(outpost) {
-  return move => {
+function weightOutpost(square, outpost) {
+  return (move, depth) => {
     const after = move.after;
     const us = move.before.turn();
 
@@ -165,16 +207,27 @@ function weightOutpost(outpost) {
       after.get(key).color === util.opposite(us)
     );
 
+    // logMove('Qf8+', square + JSON.stringify(attackers), move);
+    // logMove('Qf7+', square + JSON.stringify(attackers), move);
+
     let wDefense = Object.values(mapObj(defenders, (key, defender) =>
-      weightAttack(key, defender, null, true)(move)));
+      weightAttack(square, key, defender, null, true)(move, depth)));
 
     let wOffense = Object.values(mapObj(attackers, (key, attacker) =>
-      weightAttack(key, attacker, null, true)(move)));
+      weightAttack(square, key, attacker, null, true)(move, depth)));
+
+    // logMove('Qf8+', JSON.stringify(wDefense) + ' ' + square + ' ' + JSON.stringify(wOffense), move);
+    // logMove('Qf7+', JSON.stringify(wDefense) + ' ' + square + ' ' + JSON.stringify(wOffense), move);
+
 
     wDefense = reduceScale(wDefense);    
     wOffense = reduceScale(wOffense);
 
     let wHanging = (mul(wDefense, 0.5) - mul(wOffense, 0.5)) + 0.5;
+
+    // logMove('Qf8+', wHanging + ' ' + square, move);
+    // logMove('Qf7+', wHanging + ' '+ square, move);
+
 
     return [
       weight(wHanging, 1)
@@ -183,15 +236,15 @@ function weightOutpost(outpost) {
 }
 
 export function attackSquare(square) {
-  return move => {
+  return (move, depth) => {
     const before = move.before,
           after = move.after;
 
     const attackBefore = before.attackers(square),
           attackAfter = after.attackers(square);
 
-    const resBefore = Object.values(mapObj(attackBefore, (key, a) => weightAttack(key, a)(move))),
-          resAfter = Object.values(mapObj(attackAfter, (key, a) => weightAttack(key, a)(move)));
+    const resBefore = Object.values(mapObj(attackBefore, (key, a) => weightAttack(square, key, a)(move, depth))),
+          resAfter = Object.values(mapObj(attackAfter, (key, a) => weightAttack(square, key, a)(move, depth)));
 
     const wBefore = resBefore.reduce(sum, 0),
           wAfter = resAfter.reduce(sum, 0);
