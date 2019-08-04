@@ -83,6 +83,16 @@ export default function Board(fen) {
     return res;
   };
 
+  this.trapSquares = (square) => {
+    const movements = this.movements(square);
+    const res = [];
+    for (var key in movements) {
+      if (!movements[key].blocking) {
+        res.push(key);
+      }
+    }
+    return res;    
+  };
 
   const kingSafety = (square, movements) => {
     const piece = this.get(square);
@@ -149,7 +159,7 @@ export default function Board(fen) {
 
     attacks = attacks.reduce((acc, attack) => ({
       ...acc,
-      [attack]: Movement(this.movementblocks(square, attack))
+      [attack]: Movement(this.rayblocks(square, attack))
     }), {});
 
     kingSafety(square, attacks);

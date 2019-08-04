@@ -27,6 +27,7 @@ export function play_is(msg, fen, move) {
   const board = new Board(fen),
         actual = play(board);
 
+
   is(msg, actual.best.uci, move);
 }
 

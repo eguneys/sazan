@@ -20,9 +20,12 @@ export default function play(board, filter, depth = 0) {
 
   const best = weights.length > 0 && weights.reduce((acc, _) => acc.p>_.p?acc:_);
 
-  weights
-    .filter(_ => _.uci === 'Qf8+' || _.uci === 'Qf7+')
+  if (depth === 0)
+    weights
+    .filter(_ => _.uci === best.uci || _.uci === 'Qf7+')
     .forEach(_ => console.log(_.uci, _.w.value(), _.w.json()));
+
+
 
   // const values = legals.map(_ => ({
   //   move: _,
