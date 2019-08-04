@@ -49,27 +49,26 @@ export const set_is = runtest(matcher((a, b) => {
   return eqSet(a, b);
 }, '!='));
 
+export const has_keys = runtest(matcher((a, b) => {
+  for (let key in a) {
+    if (!objEqual(a[key], b[key])) return false;
+  }
+  return true;
+}, '++'));
 
-// export function strategy_is(msg, fen, strategy, move) {
-//   const board = new Board(fen),
-//         actual = play(board);
-
-//   move = board.legals().find(_ => _.uci === move);
-
-//   const expected = strategy(move);
-
-//   deep_is(msg, {
-//     name: actual.name,
-//     move: actual.move
-//   }, { name: expected.name,
-//        move: expected.move
-//      });
-// }
-
-// export function tactic_is(msg, fen, tactics) {
-//   withEngine(engine => {
-//     const actual = engine.tactics();
-//     deep_is(msg, actual, tactics);
-//   }, fen);  
-// }
-
+function objEqual(a, b) {
+  if (typeof a === 'object') {
+    if (typeof b !== 'object') {
+      return false;
+    }
+    for (let k in a) {
+      if (!objEqual(a[k], b[k]))
+        return false;
+    }
+    for (let k in b) {
+      if (!objEqual(a[k], b[k]))
+        return false;
+    }
+    return true;
+  } else return a === b;
+};

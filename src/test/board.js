@@ -28,9 +28,13 @@ RNBQKBNR
   
   deep_is('e2 outpost', board.outpost('d4'), {
     'c5': {},
-    'd1': { blocking: ['d2', 'd4'] },
+    'd1': { blocking: ['d2'] },
     'd8': { blocking: ['d7'] }
   });
+
+  is('can block attack', false, board.canBlock('d4', 'd6', 'w'));
+  is('can block attack', true, board.canBlock('d4', 'd6', 'b'));
+  is('can block attack', false, board.canBlock('d4', 'd5', 'b'));
 });  
 
   withVisualBoard(`

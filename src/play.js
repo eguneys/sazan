@@ -1,4 +1,4 @@
-import { weightMove } from './hint';
+import { WeightMove } from './hint';
 
 import { weightCompare } from './weight';
 
@@ -11,7 +11,7 @@ export default function play(board, filter, depth = 0) {
   legals = legals.filter(filter);
 
   const weights = legals.map(_ => {
-    const weights = weightMove(_, depth);
+    const weights = WeightMove(_, depth);
     return { uci: _.uci, 
              w: weights,
              p: weights.value()

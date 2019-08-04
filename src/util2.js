@@ -1,8 +1,21 @@
+export function memoize(fn) {
+  let cache = {};
+
+  return function(...args) {
+    const key = args[0];
+
+    if (!cache[key]) {
+      cache[key] = fn(...args);
+    }
+    return cache[key];
+  };
+}
+
 export function memoize2(fn) {
   let cache = {};
 
   return function(...args) {
-    const key = args[0] + args[1];
+    const key = JSON.stringify(args);
 
     if (!cache[key]) {
       cache[key] = fn(...args);

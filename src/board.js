@@ -131,7 +131,8 @@ export default function Board(fen) {
 
     movements = movements.reduce((acc, movement) => ({
       ...acc,
-      [movement]: Movement(this.movementblocks(square, movement))
+      [movement]: Movement(this.movementblocks(square, movement),
+                         this.interposes(square, movement))
     }), {});
 
     if (piece.type === 'p') {
@@ -159,7 +160,8 @@ export default function Board(fen) {
 
     attacks = attacks.reduce((acc, attack) => ({
       ...acc,
-      [attack]: Movement(this.rayblocks(square, attack))
+      [attack]: Movement(this.rayblocks(square, attack),
+                         this.interposes(square, attack))
     }), {});
 
     kingSafety(square, attacks);
@@ -274,6 +276,27 @@ export default function Board(fen) {
     return rayBlocks;    
   };
 
+
+  // TODO use weights for interpose value
+  this.interposes = (from, to) => {
+    const res = {};
+    for (let square of util.raycast(from, to)) {
+      const bes = [];
+      const blockers = this.attackers(square);
+      for (let key in blockers) {
+        if (key === from) continue;
+        const blocker = blockers[key];
+        if (!blocker.blocking) {
+          bes.push(key);
+        }
+      }
+      if (bes.length > 0) {
+        res[square] = bes;
+      }
+    }
+    return res;
+  };
+
   this.rayblocks = (from, to) => {
     const res = [];
     for (let square of util.raycast(from, to)) {
@@ -283,6 +306,19 @@ export default function Board(fen) {
       }
     }
     return res;
+  };
+
+  this.canBlock = (from, to, color) => {
+
+    for (let square of util.raycast(from, to)) {
+
+      const attackers = this.attackersWithColor(square, color);
+
+      if (Object.keys(attackers).length > 0 && !attackers[from]) {
+        return true;
+      }
+    }
+    return false;
   };
 
   this.isMate = () => {
@@ -304,10 +340,13 @@ export default function Board(fen) {
   };
 }
 
-function Movement(blocking) {
+function Movement(blocking, interpose) {
   var res = {};
   if (blocking && blocking.length > 0) {
     res.blocking = blocking;
+  }
+  if (interpose && Object.keys(interpose).length > 0) {
+    res.interpose = interpose;
   }
   return res;
 }

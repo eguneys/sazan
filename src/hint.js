@@ -1,29 +1,11 @@
 import * as util from './util';
 import play from './play';
 
-import { memoize2 } from './util2';
+import { memoize, memoize2 } from './util2';
+
+import { scale, sum, mul, WeightedSum, Weights, Compose, Weight } from './weight';
 
 const max_depth = 1;
-
-function scale(scale) {
-  return (a, b) => {
-    return sum(a, b) * scale;
-  };
-}
-
-function sum(a, b) {
-  return a + b;
-}
-
-function mul(a, b) {
-  return a * b;
-}
-
-function rightScale(values) {
-  const scale = 1/values.length;
-  return (a, b) => a + b * scale;
-}
-
 
 function logMove(move, msg, actual) {
   if (move === actual.uci) {
@@ -62,223 +44,9 @@ function hack() {
   };
 }
 
-function WeightedSum(weights) {
-  function value() {
-    return Object.values(weights)
-      .map(_ => _[0].value() * _[1])
-      .reduce(sum, 0);
-  }
-  
-  function add(v) {
-    Object.keys(v).forEach(k =>
-      weights[k] = v[k]
-    );
-  }
+export function WeightMove(move, depth) {
 
-  return {
-    weights,
-    value,
-    add,
-    json() {
-      const res = {};
-      Object.keys(weights)
-        .forEach(key =>
-          res[key] = { p: weights[key][0].json() }
-        );
-      res['w'] = value();
-      return res;
-    }
-  };
-}
-
-
-function Weights(weights, activation = rightScale) {
-  function value() {
-    const res = Object.values(weights)
-      .map(_ => {
-        return _.value();
-      })
-      .reduce(activation(Object.values(weights)), 0);
-    return res;
-  }
-
-  return {
-    size() {
-      return Object.values(weights).length;
-    },
-    weights,
-    value,
-    json() {
-      const res = {};
-      Object.keys(weights).forEach(w => 
-        res[w] = weights[w].json()
-      );
-      res['w'] = value();
-      return res;
-    }
-  };
-}
-
-function Compose(a, b, f) {
-  function value() {
-    return f(a.value(), b.value());
-  }
-  return {
-    a,
-    b,
-    value,
-    json() {
-      return {
-        w: value(),
-        a: a.json(), b: b.json()
-      };
-    }
-  };
-}
-
-function Weight(weight) {
-  return {
-    weight,
-    value() {
-      if (weight != 0 && !weight) {
-        debugger;
-      }
-      return weight;
-    },
-    json() {
-      return weight;
-    }
-  };
-}
-
-export function weightMove(a, depth) {
-  console.log('here', a.uci);
-  const weights = {
-    mate: [weightMate()(a), 0.4],
-    trapKing: [weightTrapKing()(a, depth), 0.4]
-  };
-
-
-  return WeightedSum(weights);
-}
-
-export function weightTrapKing() {
-  return (move, depth) => {
-    const before = move.before,
-          after = move.after;
-
-    const king = after.king(after.turn());
-
-    const kingMobility = after.trapSquares(king);
-
-    console.log(kingMobility);
-
-    return controlSquares(kingMobility, king)(move, depth);
-  };
-};
-
-export function weightMate() {
-  return move => {
-    const after = move.after;
-    return Weight(after.isMate()?1:0);
-  };
-}
-
-export function controlSquares(squares, trap) {
-  return (move, depth) => {
-    if (trap) squares = [...squares, trap];
-
-    let res = squares.reduce((acc, _) => ({
-      ...acc,
-      [_]: controlASquare(_, trap)(move, depth)
-    }), {});
-
-    
-    res = Weights(res, rightScale);
-    // res = res.reduce(rightScale(scale), 0);
-    return res;
-  };
-}
-
-export function controlASquare(square, trap) {
-  return (move, depth) => {
-
-    const us = move.before.turn();
-    const after = move.after;
-
-    // if (move.uci === 'Qa8+') {
-    //   debugger;
-    // }
-
-    return after.attackersByColor((us, them) => {
-
-      let control = Weights(mapObj(us, (key, a) => weightAttack(square, key, a, trap)(move, depth)), rightScale);
-
-      let deflect = deflectTheSquare(square)(move, depth);
-
-      return WeightedSum({
-        control: [control, 0.45],
-        deflect: [deflect, 0.55]
-      });
-    })(square, us);
-  };
-}
-
-export function deflectTheSquare(square) {
-  return (move, depth) => {
-    const defenders = move.before.attackers(square);
-
-    if (move.uci === 'Qf7+') {
-      console.log(square, defenders);
-    }
-
-    return Weights(mapObj(defenders, (key, _) => {
-      return WeightedSum({
-        attack: [attackSquare(key)(move, depth), 0.25],
-        capture: [captureSquare(key)(move, depth), 0.75]
-      });
-    }));
-
-  };
-}
-
-function weightAttack(attacked, attacker, attack, trap, noOutpost) {
-  function blockAttackFilter(move) {
-    const before = move.before;
-    const after = move.after;
-
-    const defense = after.attacks(attacker)[attacked];
-
-    return defense && defense.blocking && defense.blocking.length > 0;
-  }
-
-  return (move, depth) => {
-    console.log(move.uci, attacked, attacker, attack, trap, noOutpost);
-
-    const after = move.after;
-
-    const weights = WeightedSum({
-      danger: [Weight(attack.danger?0:1), 0.05],
-      blocking: [Weight(attack.blocking?1/(attack.blocking.length+1):1), 0.15],
-      outpost: [noOutpost?Weight(0):weightOutpost(attacker, after.outpost(attacker))(move, depth), 0.5]
-    });
-
-    let noblock = 0;
-    if (depth < max_depth && !attack.blocking) {
-      const counter = {};// = play(move.after, blockAttackFilter, depth + 1);
-
-      if (!counter.best && !attack.blocking && !attack.danger) {
-        noblock = 1;
-      }
-    }
-    weights.add({ noblock: [Weight(noblock), 0.3] });
-
-    return weights;
-  };
-};
-
-function weightOutpost(square, outpost) {
-  return (move, depth) => {
+  const  weightOutpost = memoize((square, outpost) => {
     const after = move.after;
     const us = move.before.turn();
 
@@ -293,10 +61,10 @@ function weightOutpost(square, outpost) {
     // logMove('Qf7+', square + JSON.stringify(attackers), move);
 
     let wDefense = Weights(mapObj(defenders, (key, defender) =>
-      weightAttack(square, key, defender, null, true)(move, depth)));
+      weightAttack(square, key, defender, null, true)));
 
     let wOffense = Weights(mapObj(attackers, (key, attacker) =>
-      weightAttack(square, key, attacker, null, true)(move, depth)));
+      weightAttack(square, key, attacker, null, true)));
 
     const wDirectOffense = Weights(mapObj(attackers, (key, attack) =>
       attack.blocking?Weight(0):Weight(1)
@@ -323,26 +91,140 @@ function weightOutpost(square, outpost) {
       outpost: [wOutpost, 0.2],
       hanging: [wHanging, 0.8]
     });
-  };
-}
+  });
 
-export function attackSquare(square) {
-  return (move, depth) => {
+
+  const weightAttack = memoize2((attacked, attacker, attack, trap, noOutpost) => {
+    function blockAttackFilter(move) {
+      const before = move.before;
+      const after = move.after;
+
+      const defense = after.attacks(attacker)[attacked];
+
+      return defense && defense.blocking && defense.blocking.length > 0;
+    }
+
+    const after = move.after;
+    const them = after.turn();
+
+    const canBlock = after.canBlock(attacker, attacked, them);
+
+    // if (move.uci === 'Qf7+') {
+    //   console.log(move.uci, attacker, attacked, attack, trap, noOutpost);
+
+    //   if (!noOutpost) {
+    //     console.log('her', weightOutpost(attacker, after.outpost(attacker)).value());
+    //   }
+    // }
+
+    const weights = WeightedSum({
+      danger: [Weight(attack.danger?0:1), 0.1],
+      blocking: [Weight(attack.blocking?1/(attack.blocking.length+1):1), 0.1],
+      outpost: [noOutpost?Weight(0):weightOutpost(attacker, after.outpost(attacker)), 0.5],
+      noblock: [Weight(canBlock?0:1), 0.3]
+    });
+
+    // if (depth < max_depth && !attack.blocking) {
+    //   const counter = {};// = play(move.after, blockAttackFilter, depth + 1);
+
+    //   if (!counter.best && !attack.blocking && !attack.danger) {
+    //     noblock = 1;
+    //   }
+    // }
+
+
+    return weights;
+  });
+
+  return constructor();
+
+  function constructor() {
+    const weights = {
+      mate: [weightMate(), 0.4],
+      trapKing: [weightTrapKing(), 0.4]
+    };
+
+
+    return WeightedSum(weights);
+  }
+
+  function weightTrapKing() {
     const before = move.before,
           after = move.after;
 
-    const attackBefore = before.attackers(square),
-          attackAfter = after.attackers(square);
+    const king = after.king(after.turn());
 
-    const wBefore = Weights(mapObj(attackBefore, (key, a) => weightAttack(square, key, a)(move, depth)), rightScale),
-          wAfter = Weights(mapObj(attackAfter, (key, a) => weightAttack(square, key, a)(move, depth)), rightScale);
+    const kingMobility = after.trapSquares(king);
+
+    return controlSquares(kingMobility, king);
+  };
+
+  function weightMate() {
+    const after = move.after;
+    return Weight(after.isMate()?1:0);
+  }
+
+  function controlSquares(squares, trap) {
+    if (trap) squares = [...squares, trap];
+
+    let res = squares.reduce((acc, _) => ({
+      ...acc,
+      [_]: controlASquare(_, trap)
+    }), {});
+
+    
+    res = Weights(res);
+    return res;
+  }
+
+  function controlASquare(square, trap) {
+    const us = move.before.turn();
+    const after = move.after;
+
+    // if (move.uci === 'Qa8+') {
+    //   debugger;
+    // }
+
+    return after.attackersByColor((us, them) => {
+
+      let control = Weights(mapObj(us, (key, a) => weightAttack(square, key, a, trap)));
+
+      let deflect = deflectTheSquare(square);
+
+      return WeightedSum({
+        control: [control, 0.55],
+        deflect: [deflect, 0.45]
+      });
+    })(square, us);
+  }
+
+  function deflectTheSquare(square) {
+    const them = move.after.turn();
+    const defenders = move.after.attackersWithColor(square, them);
+
+    return Weights(mapObj(defenders, (key, _) => {
+      return WeightedSum({
+        attack: [attackSquare(key), 0.35],
+        capture: [captureSquare(key), 0.65]
+      });
+    }));
+  }
+
+  function attackSquare(square) {
+    const before = move.before,
+          after = move.after,
+          us = before.turn();
+
+    const attackBefore = before.attackersWithColor(square, us),
+          attackAfter = after.attackersWithColor(square, us);
+
+    const wBefore = Weights(mapObj(attackBefore, (key, a) => weightAttack(square, key, a))),
+          wAfter = Weights(mapObj(attackAfter, (key, a) => weightAttack(square, key, a)));
 
     return Compose(wAfter, wBefore, (a, b) => mul(a, 0.5) - mul(b, 0.5) + 0.5);
-  };
-}
+  }
 
-export function captureSquare(square) {
-  return move => {
+  function captureSquare(square) {
     const before = move.before.get(square),
           after = move.after.get(square);
 
@@ -350,5 +232,5 @@ export function captureSquare(square) {
       return Weight(1);
     }
     return Weight(0);
-  };
+  }
 }
