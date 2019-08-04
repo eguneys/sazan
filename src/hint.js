@@ -135,20 +135,50 @@ export function deflectTheSquare(square) {
     return Object.values(mapObj(defenders, (key, _) => {
       return [weight(attackSquare(key)(move), 0.25),
               weight(captureSquare(key)(move), 0.75)]
-        .reduce(rightScale(scale));
-    })).reduce(sum, 0);
+        .reduce(sum, 0);
+    })).reduce(rightScale(scale));
+
   };
 }
 
-function weightAttack(attacker, attack) {
+function weightAttack(attacker, attack, trap, noOutpost) {
   return move => {
     const after = move.after;
 
     const weights = [
       weight(attack.blocking?1/(attack.blocking.length+1):1, 0.4),
-      weight(weightOutpost(after.outpost()), 0.4)
+      weight(noOutpost?0:weightOutpost(after.outpost(attacker))(move), 0.4)
     ];
     return weights.reduce(sum);
+  };
+}
+
+function weightOutpost(outpost) {
+  return move => {
+    const after = move.after;
+    const us = move.before.turn();
+
+    const defenders = filterObj(outpost, (key, attack) =>
+      after.get(key).color === us
+    );
+    const attackers = filterObj(outpost, (key, attack) =>
+      after.get(key).color === util.opposite(us)
+    );
+
+    let wDefense = Object.values(mapObj(defenders, (key, defender) =>
+      weightAttack(key, defender, null, true)(move)));
+
+    let wOffense = Object.values(mapObj(attackers, (key, attacker) =>
+      weightAttack(key, attacker, null, true)(move)));
+
+    wDefense = reduceScale(wDefense);    
+    wOffense = reduceScale(wOffense);
+
+    let wHanging = (mul(wDefense, 0.5) - mul(wOffense, 0.5)) + 0.5;
+
+    return [
+      weight(wHanging, 1)
+    ].reduce(sum);
   };
 }
 

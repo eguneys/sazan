@@ -84,28 +84,8 @@ export default function Board(fen) {
   };
 
 
-  this.movements = (square) => {
+  const kingSafety = (square, movements) => {
     const piece = this.get(square);
-    if (!piece) {
-      return {};
-    }
-
-    let movements = chess.movements(square);
-
-    movements = movements.reduce((acc, movement) => ({
-      ...acc,
-      [movement]: Movement(this.movementblocks(square, movement))
-    }), {});
-
-    if (piece.type === 'p') {
-      let captures = chess.captures(square);
-
-      captures = captures.reduce((acc, capture) => ({
-        [capture]: Movement()
-      }), {});
-
-      movements = {...movements, ...captures};
-    }
 
     let from = square;
 
@@ -129,7 +109,76 @@ export default function Board(fen) {
       }
     }
 
+  };
+
+  this.movements = (square) => {
+    const piece = this.get(square);
+    if (!piece) {
+      return {};
+    }
+
+    let movements = chess.movements(square);
+
+    movements = movements.reduce((acc, movement) => ({
+      ...acc,
+      [movement]: Movement(this.movementblocks(square, movement))
+    }), {});
+
+    if (piece.type === 'p') {
+      let captures = chess.captures(square);
+
+      captures = captures.reduce((acc, capture) => ({
+        [capture]: Movement()
+      }), {});
+
+      movements = {...movements, ...captures};
+    }
+
+    kingSafety(square, movements);
+
     return movements;
+  };
+
+  this.attacks = (square) => {
+    const piece = this.get(square);
+    if (!piece) {
+      return {};
+    }
+
+    let attacks = chess.attacks(square);
+
+    attacks = attacks.reduce((acc, attack) => ({
+      ...acc,
+      [attack]: Movement(this.movementblocks(square, attack))
+    }), {});
+
+    kingSafety(square, attacks);
+    return attacks;
+  };
+
+  this.outpost = (square) => {
+    return util.squares
+      .map(_ => {
+        const movements = this.attacks(_);
+        if (movements[square]) {
+          return { [_]: movements[square] };
+        }
+        return null;
+      })
+      .filter(_ => !!_)
+      .reduce((acc, _) => ({ ...acc, ..._ }), 0);
+  };
+
+  this.attacksWith = (filter, square) => {
+    const attacks = this.attacks(square);
+    const res = {};
+    for (let key in attacks) {
+      let attack = attacks[key];
+      if (filter(key, attack)) {
+        res[key] = attack;
+      }
+    }
+    return res;
   };
 
   this.attackersWith = (filter, square, direction) => {
@@ -149,10 +198,26 @@ export default function Board(fen) {
                        square, direction);
   };
 
+  this.attacksWithColor = (square, color, direction) => {
+    return this.attacksWith(key => this.get(key).color === color,
+                       square, direction);
+  };
+
   this.attackersByColor = (map) => {
     return (square, usColor = this.turn()) => {
       const us = this.attackersWithColor(square, usColor),
             them = this.attackersWithColor
+      (square,
+       util.opposite(usColor));
+
+      return map(us, them);
+    };
+  };
+
+  this.attacksByColor = (map) => {
+    return (square, usColor = this.turn()) => {
+      const us = this.attacksWithColor(square, usColor),
+            them = this.attacksWithColor
       (square,
        util.opposite(usColor));
 

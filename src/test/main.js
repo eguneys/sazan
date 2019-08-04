@@ -7,7 +7,7 @@ import skewer from './skewer';
 
 export function Tests() {
 
-  // board();
+  board();
   // fen();
   // rules();
   mate();

@@ -26,8 +26,11 @@ RNBQKBNR
   is('white king place', 'e1', board.king('w'));
   is('black king place', 'e8', board.king('b'));
   
-  is('white controls e2', true, board.controlSquare('e2', 'w'));
-  is('black doesnt control e2', false, board.controlSquare('e2', 'b'));
+  deep_is('e2 outpost', board.outpost('d4'), {
+    'c5': {},
+    'd1': { blocking: ['d2', 'd4'] },
+    'd8': { blocking: ['d7'] }
+  });
 });  
 
   withVisualBoard(`
