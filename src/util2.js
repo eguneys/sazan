@@ -1,11 +1,11 @@
 export function memoize(fn) {
   let cache = {};
 
-  return function(...args) {
-    const key = args[0];
+  return function(arg) {
+    const key = arg;
 
-    if (!cache[key]) {
-      cache[key] = fn(...args);
+    if (!cache.hasOwnProperty(key)) {
+      cache[key] = fn(arg);
     }
     return cache[key];
   };
@@ -14,11 +14,11 @@ export function memoize(fn) {
 export function memoize2(fn) {
   let cache = {};
 
-  return function(...args) {
-    const key = JSON.stringify(args);
+  return function(a, b, c, d) {
+    const key = `${a}-${b}-${c}-${d}`;
 
-    if (!cache[key]) {
-      cache[key] = fn(...args);
+    if (!cache.hasOwnProperty(key)) {
+      cache[key] = fn(a, b, c, d);
     }
     return cache[key];
   };

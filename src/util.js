@@ -13,6 +13,9 @@ export const opposite = (color) => { return (color === 'w')?'b':'w'; };
 export const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 export const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
+export const fileIndexes = { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7 };
+export const rankIndexes = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7 };
+
 export const file = (file) => ranks.map(_ => square(file, _));
 export const rank = (rank) => files.map(_ => square(_, rank));
 

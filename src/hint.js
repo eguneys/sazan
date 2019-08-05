@@ -36,10 +36,12 @@ export function WeightMove(move, depth) {
     return _ => board.get(_).color === color;
   };
 
-  const weightAttackReduce = (boardEval, square, depth = 0) => (acc, _) =>
-        ({ ...acc, [_]: weightAttack(boardEval, square, _, depth) });
+  const weightAttackReduce = (square, depth, isBefore = false) => 
+        (acc, _) =>
+        ({ ...acc, [_]: weightAttack(square, _, depth, isBefore) });
 
-  const weightSquareAttacks = (square, color, depth, isBefore = false) => {
+  const weightSquareAttacks = memoize2((square, color, depth = 0, isBefore = false) => {
+    // console.log(move.uci, square, color, isBefore);
     const board = isBefore?before:after;
     const boardEval = isBefore?beforeEval:afterEval;
 
@@ -47,8 +49,8 @@ export function WeightMove(move, depth) {
 
     return sq.attackers
       .filter(withColor(board, color))
-      .reduce(weightAttackReduce(boardEval, square, depth), {});
-  };
+      .reduce(weightAttackReduce(square, depth, isBefore), {});
+  });
 
   const  weightOutpost = (square, depth) => {
     if (depth >= 1) {
@@ -75,8 +77,10 @@ export function WeightMove(move, depth) {
   };
 
 
-  const weightAttack = (boardEval, attacked, attacker, depth = 0) => {
-    console.log(attacked, attacker);
+  const weightAttack = memoize2((attacked, attacker, depth, isBefore) => {
+
+    const boardEval = isBefore?beforeEval:afterEval;
+
     const attack = boardEval.square(attacker).attacks[attacked];
 
     const interpose = attack.interpose?Object.keys(attack.interpose).length/8:0;
@@ -89,7 +93,7 @@ export function WeightMove(move, depth) {
     });
 
     return weights;
-  };
+  });
 
   function weightTrapKing() {
     const kingMobility = after.trapSquares(usKing);
@@ -127,7 +131,6 @@ export function WeightMove(move, depth) {
   }
 
   function deflectTheSquare(square) {
-
     const sq = afterEval.square(square);
 
     let defenders = sq.attackers

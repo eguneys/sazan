@@ -15,12 +15,16 @@ export default function BoardEval(board) {
     return this.board.chess().attackers(square);
   };
 
+  const cache = {};
   const squareEval = (square) => {
-    return {
-      moves: squareMoves(square),
-      attacks: squareAttacks(square),
-      attackers: squareAttackers(square)
-    };
+    if (!cache[square]) {
+      cache[square] = {
+        moves: squareMoves(square),
+        attacks: squareAttacks(square),
+        attackers: squareAttackers(square)
+      };
+    }
+    return cache[square];
   };
 
   this.square = (square) => {

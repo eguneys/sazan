@@ -21,7 +21,5 @@
     "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
-    "chess.js": "^0.10.2",
-    "chessground": "^7.6.8"
   }
 }

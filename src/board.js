@@ -5,18 +5,11 @@ import { Direction } from './util';
 
 import Move from './move';
 
+import ChessFactory from './chess';
+
 export default function Board(fen) {
 
-  const chess = new Chess();
-
-  if (!fen) {
-    chess.clear();
-  } else {
-    const valid = chess.load(fen);
-    if (!valid) {
-      throw new Error("bad fen string " + fen);
-    }
-  }
+  const chess = ChessFactory(fen);
 
   this.chess = () => chess;
   this.fen = () => chess.fen();
@@ -32,9 +25,17 @@ export default function Board(fen) {
 
   this.get = (square) => chess.get(square);
 
-  this.put = (piece, square) => chess.put(piece, square);
+  this.put = (piece, square) => {
+    return this.cloneOp(_ => _.put(piece, square));
+  };
 
-  this.remove = (square) => chess.remove(square);
+  this.remove = (square) => {
+    return this.cloneOp(_ => _.remove(square));
+  };
+
+  this.apply = (move) => {
+    return this.cloneOp(_ => _.move(move));
+  };
 
   this.color = (square) => {
     return this.get(square).color;
@@ -100,16 +101,21 @@ export default function Board(fen) {
     let from = square;
 
     for (let to in movements) {
-      let board = this.clone();
       let movement = movements[to];
 
-      board.remove(from);
-      board.put(piece, to);
+      // const board2 = this.remove(from),
+      //       board = board2.put(piece, to);
 
-      const kingPos = board.king(piece.color);
+      // const kingPos = board.king(piece.color);
 
-      const attackers = board.attackersWith((square, oAttack) => {
-        const attacker = board.get(square);
+      let kingPos = this.king(piece.color);
+      if (piece.type === 'k') {
+        kingPos = to;
+      }
+
+
+      const attackers = this.attackersWith((square, oAttack) => {
+        const attacker = this.get(square);
         return attacker.color !== piece.color &&
           !oAttack.blocking;
       }, kingPos);
@@ -331,12 +337,12 @@ export default function Board(fen) {
 
   this.ascii = () => chess.ascii();
 
-  this.clone = () => new Board(this.fen());
+  this.clone = () => {
+    return new Board(this.fen());
+  };
 
-  this.apply = (move) => {
-    var board = this.clone();
-    board.chess().move(move);
-    return board;
+  this.cloneOp = (op) => {
+    return new Board(chess.fenAfter(op));
   };
 }
 
