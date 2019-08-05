@@ -71,3 +71,66 @@ function objEqual(a, b) {
     return true;
   } else return a === b;
 };
+
+
+export function withVisualBoard(board, f) {
+  f(visualBoard(board));
+}
+
+// `
+// rnbqkbnr
+// pppppppp
+
+
+
+
+// PPPPPPPP
+// RNBQKBNR
+// `
+function visualBoard(str) {
+  let board = new Board();
+
+  str.replace(/^\n+|\n+$/g, '').split('\n').forEach((line, row) => {
+    row = 7 - row;
+    line.split('').forEach((char, col) => {
+      const file = util.files[col],
+            rank = util.ranks[row];
+
+      if (char !== ' ') {
+        const color = (char === char.toUpperCase()) ? 'w':'b';
+        board = board.put({ type: char.toLowerCase(), color }, file + rank);
+      }
+    });
+  });
+
+
+  return board;  
+}
+
+
+//         `
+//     x   
+//     x   
+//     x   
+//     x   
+//     x   
+// xxxxrxxx
+//     x   
+//     x   
+// `
+function visualMarked(str) {
+  const res = [];
+
+  str.replace(/^\n+|\n+$/g, '').split('\n').forEach((line, row) => {
+    row = 7 - row;
+    line.split('').forEach((char, col) => {
+      const file = util.files[col],
+            rank = util.ranks[row];
+      if (char === 'x') {
+        res.push(file + rank);
+      }
+    });
+  });
+
+  return res;
+}

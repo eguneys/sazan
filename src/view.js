@@ -44,23 +44,28 @@ function expandNode(ctrl, key, node) {
   }, (node.collapsed?'+':'-') + ' ' + key);
 }
 
+function value(value) {
+  const size = 0.8 + value * (1 + value)  + 'em';
+  return h('span', {style: { 'font-size': size }}, roundTo(value));
+}
+
 function weight(ctrl, node, depth = 0) {
   let children = [];
 
   if (!node.collapsed) {
-    Object.keys(node.children).forEach(_ => {
+    children = Object.keys(node.children).map(_ => {
       const child = node.children[_];
       if (typeof child !== 'object') {
-        children.push(h('div', [
+        return h('div', [
           h('span', _),
-          h('span', roundTo(child))
-        ]));
+          value(child)
+        ]);
       } else {
-        children.push(h('div', [
+        return h('div', [
           expandNode(ctrl, _, child),
-          h('span', roundTo(child.w)),
+          value(child.w),
           weight(ctrl, child, depth + 1)
-        ]));
+        ]);
       }
     });
   }
@@ -72,7 +77,7 @@ function weight(ctrl, node, depth = 0) {
 
 function move(ctrl, m) {
   return h('div.move', [
-    h('h2', m.uci),
+    h('h2', m.uci + ' ' + roundTo(m.root.w)),
     weight(ctrl, m.root)
   ]);
 }
@@ -88,7 +93,7 @@ function renderGround(ctrl) {
   return h('div.ground', {
     hook: {
       insert(vnode) {
-        ground(vnode.elm, ctrl.groundConfig);
+        ctrl.ground = ground(vnode.elm, ctrl.groundConfig);
       }
     }
   });

@@ -107,31 +107,31 @@ export function Chess(fen) {
   ];
 
   const pawnAttacksWhite = [
-    [[1, 1],
-     [-1,1]]
+    [1, 1],
+    [-1,1]
   ];
 
   const pawnAttacksBlack = [
-    [[1,-1],
-     [-1,-1]]
+    [1,-1],
+    [-1,-1]
   ];
 
   const pawnMovesWhiteBase = [
-    [[0, 1],
-     [0,2]]
+    [0, 1],
+    [0,2]
   ];
 
   const pawnMovesWhite = [
-    [[0, 1]]
+    [0, 1]
   ];
 
   const pawnMovesBlackBase = [
-    [[0,-1],
-     [0, -2]]
+    [0,-1],
+    [0, -2]
   ];
 
   const pawnMovesBlack = [
-    [[0, -1]]
+    [0, -1]
   ];
 
   const pawnAttackVectors = {
@@ -244,6 +244,10 @@ export function Chess(fen) {
 
   this.remove = (piece) => {
     return chess.remove(piece);
+  };
+
+  this.move = (move) => {
+    return chess.move(move);
   };
 
   this.moves = (opts) => {

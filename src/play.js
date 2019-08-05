@@ -18,7 +18,11 @@ export default function play(board, filter, depth = 0) {
            };
   });
 
+  const sorted = weights.sort((a, b) => a.p > b.p);
+
   const best = weights.length > 0 && weights.reduce((acc, _) => acc.p>_.p?acc:_);
+
+  const secondBest = sorted[1];
 
   if (depth === 0)
     weights
@@ -38,6 +42,7 @@ export default function play(board, filter, depth = 0) {
   return {
     // values,
     weights,
-    best
+    best,
+    secondBest
   };
 }

@@ -39,9 +39,14 @@
 
   <script>
 
+   const li = {
+     backrankMate4: '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1',
+     hookMate2: '5r1b/2R1R3/P4r2/2p2Nkp/2b3pN/6P1/4PP2/6K1 w - - 0 1'
+   };
+
    Tetris(document.getElementById('app'), {
-     fen: '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1',
-     move1: 'Qf7+'
+     fen: li.hookMate2,
+     move1: 'Rg7+'
    });
 
    Tetris.Tests();

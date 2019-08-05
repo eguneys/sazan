@@ -1,3 +1,9 @@
+.cg-wrap coords {
+  font-size: 1em;
+  font-weight: bold;
+  color: white;
+}
+
 .ground {
   margin: auto;
 }

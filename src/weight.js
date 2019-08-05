@@ -32,6 +32,12 @@ export function WeightedSum(weights, activation = sum) {
     );
   }
 
+  const total = Object.values(weights).reduce((acc, _) =>  acc + _[1], 0);
+  if (total > 1.01) {
+    throw new Error("Bad weighted sum " + total);
+
+  }
+
   return {
     weights,
     value,
@@ -63,6 +69,15 @@ export function Weights(weights) {
   return WeightedSum(
     mapObj(weights, (_, value) => [value, scale])
   );
+}
+
+export function WeightsWithSized(weights, max, sizeWeight) {
+  const scale = Object.keys(weights).length/max;
+
+  return WeightedSum({
+    v: [Weights(weights), 1-sizeWeight],
+    s: [Weight(scale), sizeWeight]
+  });
 }
 
 export function Compose(a, b, f) {

@@ -114,65 +114,6 @@ export const raycast = (from, to) => {
   return res;
 };
 
-
-// `
-// rnbqkbnr
-// pppppppp
-
-
-
-
-// PPPPPPPP
-// RNBQKBNR
-// `
-export function visualBoard(str) {
-  const board = new Board();
-
-  str.replace(/^\n+|\n+$/g, '').split('\n').forEach((line, row) => {
-    row = 7 - row;
-    line.split('').forEach((char, col) => {
-      const file = files[col],
-            rank = ranks[row];
-
-      if (char !== ' ') {
-        const color = (char === char.toUpperCase()) ? 'w':'b';
-        board.put({ type: char.toLowerCase(), color }, file + rank);
-      }
-    });
-  });
-
-
-  return board;  
-}
-
-
-//         `
-//     x   
-//     x   
-//     x   
-//     x   
-//     x   
-// xxxxrxxx
-//     x   
-//     x   
-// `
-export function visualMarked(str) {
-  const res = [];
-
-  str.replace(/^\n+|\n+$/g, '').split('\n').forEach((line, row) => {
-    row = 7 - row;
-    line.split('').forEach((char, col) => {
-      const file = files[col],
-            rank = ranks[row];
-      if (char === 'x') {
-        res.push(file + rank);
-      }
-    });
-  });
-
-  return res;
-}
-
 export function roundTo(x) {
   return Math.round(x * 100) / 100;
 }

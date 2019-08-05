@@ -1,5 +1,5 @@
 import { deep_is, is, ok, not, log } from 'testiz/browser';
-import { has_keys, set_is, withEngine } from './util';
+import { has_keys, set_is, withEngine, visualBoard } from './util';
 
 import * as util from '../util';
 import { Direction } from '../util';
@@ -7,7 +7,7 @@ import { Direction } from '../util';
 import BoardEval from '../boardeval';
 
 function withVisualBoard(board, f) {
-  f(util.visualBoard(board));
+  f(visualBoard(board));
 }
 
 function withBoardEval(board, f) {
@@ -30,7 +30,7 @@ R   n
  
 K     b
 `, board => {
-  
+
   has_keys('evaluate square a1', {
     moves: { b1: { danger: true }, b2: { }, a2: {} },
     attacks: { b1: { danger: true }, b2: { }, a2: {} },
@@ -43,5 +43,4 @@ K     b
 
 
 });
-
 }

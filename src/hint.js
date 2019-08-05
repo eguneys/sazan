@@ -3,7 +3,7 @@ import play from './play';
 
 import { memoize, memoize2 } from './util2';
 
-import { scale, sum, mul, WeightedSum, Weights, Compose, Weight } from './weight';
+import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight } from './weight';
 
 const max_depth = 1;
 
@@ -41,7 +41,6 @@ export function WeightMove(move, depth) {
         ({ ...acc, [_]: weightAttack(square, _, depth, isBefore) });
 
   const weightSquareAttacks = memoize2((square, color, depth = 0, isBefore = false) => {
-    // console.log(move.uci, square, color, isBefore);
     const board = isBefore?before:after;
     const boardEval = isBefore?beforeEval:afterEval;
 
@@ -72,7 +71,7 @@ export function WeightMove(move, depth) {
 
 
     return WeightedSum({
-      outpost: [wOutpost, 0.2]
+      outpost: [wOutpost, 1]
     });
   };
 
@@ -85,16 +84,16 @@ export function WeightMove(move, depth) {
     const attack = boardEval.square(attacker).attacks[attacked];
 
     const interposers = attack.interpose?Object.values(attack.interpose).reduce((acc, _) => acc + _.filter(withColor(board, them)).length, 0):0;
-    const interpose = interposers?(1/(interposers + 1)):0;
+    const interpose = interposers?(interposers/8):0;
 
     // logMove('Qf7+', attacked + ' ' + attacker + ' ' + JSON.stringify(interposers), move);
-    // logMove('Qa8+', attacked + ' ' + attacker + ' ' + JSON.stringify(interposers), move);
+    // logMove('Qf7+', attacked + ' ' + attacker + ' ' + JSON.stringify(interpose), move);
 
     const weights = WeightedSum({
-      danger: [Weight(attack.danger?0:1), 0.1],
-      blocking: [Weight(attack.blocking?1/(attack.blocking.length+1):1), 0.1],
-      outpost: [weightOutpost(attacker, depth), 0.5],
-      interpose: [Weight(interpose), 0.3]
+      danger: [Weight(attack.danger?0:1), 0.0],
+      blocking: [Weight(attack.blocking?1/(attack.blocking.length+1):1), 0.3],
+      outpost: [weightOutpost(attacker, depth), 0.4],
+      interpose: [Weight(1-interpose), 0.3]
     });
 
     return weights;
@@ -125,7 +124,7 @@ export function WeightMove(move, depth) {
   function controlASquare(square, trap) {
     const sq = afterEval.square(square);
 
-    let control = Weights(weightSquareAttacks(square, us));
+    let control = WeightsWithSized(weightSquareAttacks(square, us), 10, 0.7);
 
     let deflect = deflectDefenders(square);
 

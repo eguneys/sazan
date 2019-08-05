@@ -1,12 +1,8 @@
 import { deep_is, is, ok, not, log } from 'testiz/browser';
-import { set_is, withEngine } from './util';
+import { set_is, withEngine, withVisualBoard } from './util';
 
 import * as util from '../util';
 import { Direction } from '../util';
-
-function withVisualBoard(board, f) {
-  f(util.visualBoard(board));
-}
 
 export default function run() {
 
@@ -78,6 +74,21 @@ RNBQKBNR
 
   deep_is('f2 direction file', { 'f5': {}},
           board.attackers('f2', Direction.file));
+
+});
+
+  withVisualBoard(`
+R   n   
+       k
+
+
+
+ P 
+ 
+K     b
+`, board => {
+
+  deep_is('pawn attacks', ['a8', 'b3'], board.chess().attackers('a4'));
 
 });
 

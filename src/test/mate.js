@@ -6,6 +6,7 @@ export default function run() {
 
   play_is('backrank mate #4', '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1', 'Qf7+');
 
+  play_is('hook mate #2', '5r1b/2R1R3/P4r2/2p2Nkp/2b3pN/6P1/4PP2/6K1 w - - 0 1', 'Rg7+');
 
   // play_is('Qxf7#', '3qk3/3ppp2/8/8/2B5/5Q2/3K4/8 w - - 0 1', 
   //         'Qxf7#');
