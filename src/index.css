@@ -1,6 +1,15 @@
+.ground {
+  margin: auto;
+}
+
 .moves {
+  font-size: 1em;
   display: flex;
   justify-content: center;
+}
+
+.move {
+  padding: 10px;
 }
 
 .weight {
@@ -8,5 +17,6 @@
 }
 
 .weight > div > span {
+  cursor: pointer;
   margin: 2px;
 }

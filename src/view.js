@@ -1,5 +1,9 @@
 import { h } from 'snabbdom';
 
+import { bind } from './utilview';
+
+import ground from './ground';
+
 function roundTo(x) {
   return Math.round(x * 10000) / 10000;
 }
@@ -34,24 +38,32 @@ const colors = [
   'purple'
 ];
 
+function expandNode(ctrl, key, node) {
+  return h('span', {
+    hook: bind('click', () => ctrl.toggle(node))
+  }, (node.collapsed?'+':'-') + ' ' + key);
+}
+
 function weight(ctrl, node, depth = 0) {
   let children = [];
 
-  Object.keys(node.children).forEach(_ => {
-    const child = node.children[_];
-    if (typeof child !== 'object') {
-      children.push(h('div', [
-        h('span', _),
-        h('span', roundTo(child))
-      ]));
-    } else {
-      children.push(h('div', [
-        h('span', _),
-        h('span', roundTo(child.w)),
-        weight(ctrl, child, depth + 1)
-      ]));
-    }
-  });
+  if (!node.collapsed) {
+    Object.keys(node.children).forEach(_ => {
+      const child = node.children[_];
+      if (typeof child !== 'object') {
+        children.push(h('div', [
+          h('span', _),
+          h('span', roundTo(child))
+        ]));
+      } else {
+        children.push(h('div', [
+          expandNode(ctrl, _, child),
+          h('span', roundTo(child.w)),
+          weight(ctrl, child, depth + 1)
+        ]));
+      }
+    });
+  }
 
   const klass = colors[depth];
 
@@ -61,21 +73,30 @@ function weight(ctrl, node, depth = 0) {
 function move(ctrl, m) {
   return h('div.move', [
     h('h2', m.uci),
-    weight(ctrl, m.w.json())
+    weight(ctrl, m.root)
   ]);
 }
 
 function moves(ctrl) {
-  const weights = ctrl.data.weights;
-
   return h('div.moves', [
-    move(ctrl, weights.w1),
-    move(ctrl, weights.w2)
+    move(ctrl, ctrl.data.move1),
+    move(ctrl, ctrl.data.move2)
   ]);
+}
+
+function renderGround(ctrl) {
+  return h('div.ground', {
+    hook: {
+      insert(vnode) {
+        ground(vnode.elm, ctrl.groundConfig);
+      }
+    }
+  });
 }
 
 export default function view(ctrl) {
   return h('div.main', [
+    renderGround(ctrl),
     moves(ctrl)
   ]);
 }
