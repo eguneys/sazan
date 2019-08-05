@@ -23,11 +23,8 @@ export default function BoardEval(board) {
     };
   };
 
-  this.squares = util.squares
-    .reduce((acc, _) => ({ ...acc, [_]:squareEval(_) }), {});
-
   this.square = (square) => {
-    return this.squares[square];
+    return squareEval(square);
   };
 
 }

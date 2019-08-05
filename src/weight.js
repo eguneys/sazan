@@ -49,6 +49,11 @@ export function WeightedSum(weights) {
 
 
 export function Weights(weights, activation = rightScale) {
+
+  if (typeof weights !== 'object') {
+    throw new Error('bad weights ' + weights);
+  }
+  
   function value() {
     const res = Object.values(weights)
       .map(_ => {
@@ -93,6 +98,9 @@ export function Compose(a, b, f) {
 }
 
 export function Weight(weight) {
+  if (weight != 0 && !weight) {
+    throw new Error('bad weight ' + weight);
+  }
   return {
     weight,
     value() {

@@ -51,3 +51,25 @@ function objectCompare(obj1, obj2) {
 	}
 	return true;
 };
+
+function filterObj(obj, filter) {
+  const res = {};
+  for (let key of Object.keys(obj)) {
+    if (filter(key, obj[key])) {
+      res[key] = obj[key];
+    }
+  }
+  return res;
+}
+
+function mapObj(obj, map) {
+  const res = {};
+  for (let key of Object.keys(obj)) {
+    res[key] = map(key, obj[key]);
+  }
+  return res;
+}
+
+function objLength(obj) {
+  return Object.keys(obj).length;
+}

@@ -9,10 +9,10 @@ import skewer from './skewer';
 export function Tests() {
 
   // board();
-  boardeval();
+  // boardeval();
   // fen();
   // rules();
-  // mate();
+  mate();
   // hanging();
   // skewer();
   
