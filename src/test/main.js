@@ -8,7 +8,7 @@ import skewer from './skewer';
 
 export function Tests() {
 
-  board();
+  // board();
   // boardeval();
   // fen();
   // rules();

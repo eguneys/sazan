@@ -1,14 +1,10 @@
 import { deep_is, is, ok, not, log } from 'testiz/browser';
-import { has_keys, set_is, withEngine, visualBoard } from './util';
+import { has_keys, set_is, withEngine, withVisualBoard } from './util';
 
 import * as util from '../util';
 import { Direction } from '../util';
 
 import BoardEval from '../boardeval';
-
-function withVisualBoard(board, f) {
-  f(visualBoard(board));
-}
 
 function withBoardEval(board, f) {
   withVisualBoard(board, board => {

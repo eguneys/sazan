@@ -15,6 +15,7 @@ export function mul(a, b) {
 }
 
 export function WeightedSum(weights, activation = sum) {
+
   function value() {
     return Object.values(weights)
       .map(_ => {

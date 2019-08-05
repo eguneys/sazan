@@ -11,7 +11,8 @@ export default function play(board, filter, depth = 0) {
   legals = legals.filter(filter);
 
   const weights = legals.map(_ => {
-    const weights = WeightMove(_, depth);
+    const weights = new WeightMove(_, depth).get();
+
     return { uci: _.uci, 
              w: weights,
              p: weights.value()

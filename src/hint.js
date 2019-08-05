@@ -1,28 +1,17 @@
-import * as util from './util';
-import play from './play';
-
 import { memoize, memoize2 } from './util2';
 
 import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight } from './weight';
 
-const max_depth = 1;
+import weightMate from './weights/mate';
 
-function logMove(move, msg, actual) {
+export function logMove(move, msg, actual) {
   if (move === actual.uci) {
     console.log(move + ' ' + msg);
   }
 }
 
-function hack() {
-  return move => {
-    if (move.uci === 'Qf7+' || move.uci === 'Qxf8+') {
-      return 1;
-    }
-    return 0;
-  };
-}
-
 export function WeightMove(move, depth) {
+
   const after = move.after,
         before = move.before,
         afterEval = move.afterEval,
@@ -30,7 +19,20 @@ export function WeightMove(move, depth) {
         usKing = after.king(before.turn()),
         themKing = after.king(after.turn()),
         us = move.before.turn(),
-        them = move.after.turn();
+        them = move.after.turn(),
+        kingMobility = after.trapSquares(themKing);
+
+
+
+  this.after = after;
+  this.before = before;
+  this.afterEval = afterEval;
+  this.beforeEval = beforeEval;
+  this.usKing = usKing;
+  this.themKing = themKing;
+  this.us = us;
+  this.them = them;
+  this.kingMobility = kingMobility;
 
   const withColor = (board, color) => {
     return _ => board.get(_).color === color;
@@ -100,14 +102,8 @@ export function WeightMove(move, depth) {
   });
 
   function weightTrapKing() {
-    const kingMobility = after.trapSquares(themKing);
-
     return controlSquares(kingMobility, themKing);
   };
-
-  function weightMate() {
-    return Weight(after.isMate()?1:0);
-  }
 
   function controlSquares(squares, trap) {
     if (trap) squares = [...squares, trap];
@@ -173,8 +169,10 @@ export function WeightMove(move, depth) {
     }
   }
 
-  return WeightedSum({
-    mate: [weightMate(), 0.4],
-    trapKing: [weightTrapKing(), 0.4]
-  });
+  this.get = () => {
+    return WeightedSum({
+      mate: [weightMate(this), 0.4],
+      trapKing: [weightTrapKing(), 0.4]
+    });
+  };
 }
