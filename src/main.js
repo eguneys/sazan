@@ -1,9 +1,22 @@
-import ground from './ground';
+import snab from './snab';
 
-export function app(element, options) {
+import makeCtrl from './ctrl';
+import view from './view';
+import configure from './config';
+import defaults from './state'; 
 
-  const api = ground(element, {});
+import start from './api';
 
-  
+import makeGround from './ground';
+
+export function app(element, config) {
+
+  let state = defaults();
+
+  configure(state, config || {});
+
+  let { ctrl, redraw } = snab(element, state, makeCtrl, view);
+
+  return start(ctrl, redraw);
   
 }

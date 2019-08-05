@@ -23,11 +23,9 @@
      }
 
      section {
-         width: 100%;
-         height: 100%;
          background: #202020;
      }
-
+     
      #app {
          margin: auto;
      }
@@ -41,7 +39,10 @@
 
   <script>
 
-   // Tetris(document.getElementById('app'), {});
+   Tetris(document.getElementById('app'), {
+     fen: '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1',
+     move1: 'Qf7+'
+   });
 
    Tetris.Tests();
    

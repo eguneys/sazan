@@ -1,3 +1,4 @@
+import { mapObj } from './util2';
 
 export function scale(scale) {
   return (a, b) => {
@@ -13,16 +14,16 @@ export function mul(a, b) {
   return a * b;
 }
 
-function rightScale(values) {
-  const scale = 1/values.length;
-  return (a, b) => a + b * scale;
-}
-
-export function WeightedSum(weights) {
+export function WeightedSum(weights, activation = sum) {
   function value() {
     return Object.values(weights)
-      .map(_ => _[0].value() * _[1])
-      .reduce(sum, 0);
+      .map(_ => {
+        const w = _[0],
+              scale = _[1],
+              v = (typeof w === 'object')?w.value():w;
+        return v * scale;
+      })
+      .reduce(activation, 0);
   }
   
   function add(v) {
@@ -36,81 +37,45 @@ export function WeightedSum(weights) {
     value,
     add,
     json() {
-      const res = {};
+
+      let children = {};
+
       Object.keys(weights)
-        .forEach(key =>
-          res[key] = { p: weights[key][0].json() }
-        );
-      res['w'] = value();
-      return res;
-    }
-  };
-}
+        .forEach(key => {
+          const w = weights[key][0];
+          const res = (typeof w === 'object')?w.json():w;
+          children[key] = res;
+        });
 
-
-export function Weights(weights, activation = rightScale) {
-
-  if (typeof weights !== 'object') {
-    throw new Error('bad weights ' + weights);
-  }
-  
-  function value() {
-    const res = Object.values(weights)
-      .map(_ => {
-        return _.value();
-      })
-      .reduce(activation(Object.values(weights)), 0);
-    return res;
-  }
-
-  return {
-    size() {
-      return Object.values(weights).length;
-    },
-    weights,
-    value,
-    json() {
-      const res = {};
-      Object.keys(weights).forEach(w => 
-        res[w] = weights[w].json()
-      );
-      res['w'] = value();
-      return res;
-    }
-  };
-}
-
-export function Compose(a, b, f) {
-  function value() {
-    return f(a.value(), b.value());
-  }
-  return {
-    a,
-    b,
-    value,
-    json() {
       return {
+        type: 'weight',
         w: value(),
-        a: a.json(), b: b.json()
+        children
       };
     }
   };
 }
 
-export function Weight(weight) {
-  if (weight != 0 && !weight) {
-    throw new Error('bad weight ' + weight);
-  }
+
+export function Weights(weights) {
+  const scale = 1/Object.keys(weights).length;
+
+  return WeightedSum(
+    mapObj(weights, (_, value) => [value, scale])
+  );
+}
+
+export function Compose(a, b, f) {
+  return WeightedSum({ a: [a, 0.5], b: [b, 0.5] }, f);
+}
+
+export function Weight(v) {
   return {
-    weight,
     value() {
-      if (weight != 0 && !weight) {
-        debugger;
-      }
-      return weight;
+      return v;
     },
     json() {
-      return weight;
+      return v;
     }
   };
 }

@@ -1,0 +1,12 @@
+.moves {
+  display: flex;
+  justify-content: center;
+}
+
+.weight {
+  margin-left: 10px;
+}
+
+.weight > div > span {
+  margin: 2px;
+}
