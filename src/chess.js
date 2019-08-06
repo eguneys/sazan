@@ -77,8 +77,16 @@ export function Chess(fen) {
     return this.attacks(from).indexOf(to) !== -1;
   };
 
+  this.moving = (from, to) => {
+    return this.movements(from).indexOf(to) !== -1;
+  };
+
   this.attackers = (square) => {
     return this.pieces().filter(_ => this.attacking(_, square));
+  };
+
+  this.movers = (square) => {
+    return this.pieces().filter(_ => this.moving(_, square));
   };
 
   this.inCheckmate = () => {

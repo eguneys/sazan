@@ -108,7 +108,7 @@ export const raycast = (from, to) => {
     let dFile = (fromFile < toFile) ? 1 : -1;
 
     for (let i = fromFile + dFile, j = fromRank + dRank; i !== toFile; i+=dFile, j += dRank) {
-      res.push(square(files[i], ranks[i]));
+      res.push(square(files[i], ranks[j]));
     }
   } 
   return res;

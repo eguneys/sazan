@@ -275,6 +275,20 @@ export default function Board(fen) {
       }), {});
   };
 
+  this.movers = (square, direction = Direction.all) => {
+    const movers = chess.movers(square);
+
+    return movers
+      .filter(move => 
+        (direction === Direction.all ||
+         util.classifyDirection([square, move]) === direction)
+      )
+      .reduce((acc , move) => ({
+        ...acc,
+        [move]: Movement(this.rayblocks(move, square))
+      }), {});
+  };
+
   this.movementblocks = (from, to) => {
     const fromPiece = this.get(from),
           isPawn = fromPiece.type === 'p';
@@ -299,7 +313,7 @@ export default function Board(fen) {
     const res = {};
     for (let square of util.raycast(from, to)) {
       const bes = [];
-      const blockers = this.attackers(square);
+      const blockers = this.movers(square);
       for (let key in blockers) {
         if (key === from) continue;
         const blocker = blockers[key];

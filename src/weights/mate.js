@@ -25,7 +25,7 @@ export default function weightMate(d) {
 
   const kingEval = afterEval.square(usPieces.king);
 
-  const m = _ => movementVector.direction(themPieces.king, _);
+  const m = _ => movementVector.direction(themPieces.king[0], _);
 
   const kingMoves = m('kings'),
         kingDiagonals = m('kingDiagonals'),
@@ -36,13 +36,12 @@ export default function weightMate(d) {
         kingLefts = m('kingLefts'),
         kingRights = m('kingRights');
 
-
   const l = (_, l = 0) => _.length === l;
 
 
   function backrankMate() {
 
-    const knightOnEdge = WeightsMix({
+    const kingOnEdge = WeightsMix({
       up: l(kingUps),
       down: l(kingDowns),
       left: l(kingLefts),
@@ -67,7 +66,7 @@ export default function weightMate(d) {
           .filter(isColor(them));
 
     return Weights({
-      onEdge: knightOnEdge,
+      onEdge: kingOnEdge,
       friendlyBlocks: Weight(friendlyBlocks.length/3)
     });
   }

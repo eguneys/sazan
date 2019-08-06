@@ -1,11 +1,37 @@
 import { deep_is, is, ok, not, log } from 'testiz/browser';
-import { set_is, withEngine, withVisualBoard } from './util';
+import { set_is, has_keys, withEngine, withVisualBoard } from './util';
 
 import * as util from '../util';
 import { Direction } from '../util';
 
 export default function run() {
 
+  current();
+  
+
+  // failing();
+}
+
+function current() {
+    withVisualBoard(`
+     k
+p p  pp 
+
+  R    p
+  
+B
+P
+ K
+`, board => {
+
+  has_keys('bishop attacks f8 pin on c5', {
+    blocking: ['c5']
+  }, board.attacks('a3')['f8']);
+
+});
+}
+
+function failing() {
   
 
   withVisualBoard(`
@@ -171,5 +197,4 @@ RNBQKBNR
   }, board.movements('b3'));
 
 });
-
 }

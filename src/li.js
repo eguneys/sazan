@@ -8,7 +8,8 @@ const mates = {
 };
 
 const pins = {
-  absolute1: { fen: '7k/8/8/4n3/4P3/8/8/6BK w - - 0 1', move: 'Bd4' }
+  absolute1: { fen: '7k/8/8/4n3/4P3/8/8/6BK w - - 0 1', move: 'Bd4' },
+  absolute2: { fen: '5k2/p1p2pp1/7p/2r5/8/1P3P2/PBP3PP/1K6 w - - 0 1', move: 'Ba3' }
 };
 
 const tactics = {

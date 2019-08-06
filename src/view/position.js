@@ -6,7 +6,7 @@ import ground from '../ground';
 import { makeConfig as makeGroundConfig } from '../ground';
 
 function roundTo(x) {
-  return Math.round(x * 10000) / 10000;
+  return Math.round(x * 100) / 100;
 }
 
 function fenInput(ctrl) {

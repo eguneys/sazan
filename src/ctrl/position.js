@@ -1,8 +1,25 @@
 import play from '../play';
 import Board from '../board';
 
+function makeStorage(name) {
+  return {
+    get() {
+      return window.localStorage.getItem(name);
+    },
+    set(value) {
+      window.localStorage.setItem(name, value);
+    }
+  };
+}
+
+
 export default function ctrl(ctrl, position, redraw) {
-  this.position = position;
+  this.posStore = makeStorage(position);
+  if (!this.posStore.get()) {
+    this.posStore.set('hookMate3');
+  }
+  
+  this.position = this.posStore.get();
 
   this.data = {
     li: ctrl.data.li
@@ -13,15 +30,17 @@ export default function ctrl(ctrl, position, redraw) {
   };
 
   this.fen = () => {
-    return this.data.li[position].fen;
+    return this.data.li[this.position].fen;
   };
 
   this.move1 = () => {
-    return this.data.li[position].move;
+    return this.data.li[this.position].move;
   };
 
   this.setPosition = (key) => {
-    position = key;
+    this.posStore.set(key);
+    this.position = key;
+
     evaluatePosition();
     if (this.ground) {
       this.setGround(this.ground);
