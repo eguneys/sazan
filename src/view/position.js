@@ -41,7 +41,9 @@ const colors = [
 
 function expandNode(ctrl, key, node) {
   return h('span', {
-    hook: bind('click', () => ctrl.toggle(node))
+    hook: bind('click', () => {
+      ctrl.toggle(node);
+    })
   }, (node.collapsed?'+':'-') + ' ' + key);
 }
 
@@ -101,7 +103,14 @@ function renderGround(ctrl) {
 }
 
 function renderSelectPosition(ctrl) {
-  let options = Object.keys(ctrl.data.li).map(_ => h('option', _));
+  let options = Object.keys(ctrl.data.li)
+      .map(_ => h('option',
+                  {
+                    attrs: {
+                      selected: ctrl.position === _
+                    }
+                  }, _));
+
   return h('select', {
     hook: bind('input', (e) => { ctrl.setPosition(e.target.value); })
   }, options);

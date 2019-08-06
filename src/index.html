@@ -9,12 +9,9 @@
     <link href="./assets/theme.css" rel="stylesheet"/>
 
     <style>
-          html, body {
-         width: 100%;
-         height: 100%;
+     html, body {
          padding: 0px;
          margin: 0px;
-
      }
 
      body {
@@ -39,17 +36,9 @@
 
   <script>
 
-   const li = {
-     backrankMate1: { fen: '6k1/4Rppp/8/8/8/8/5PPP/6K1 w - - 0 1', move: 'Re8#' },
-     backrankMate4: { fen: '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1', move: 'Qf7+' },
-     hookMate1: { fen: 'R7/4kp2/5N2/4P3/8/8/8/6K1 w - - 0 1', move: 'Re8#' },
-     hookMate3: { fen: '2b1Q3/1kp5/p1Nb4/3P4/1P5p/p6P/K3R1P1/5q2 w - - 0 1', move: 'Qxc8+' }
-   };
-
    Tetris(document.getElementById('app'), {
-     li,
      position1: 'backrankMate1',
-     position2: 'hookMate1'
+     position2: 'absolute1'
    });
 
    Tetris.Tests();

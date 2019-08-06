@@ -52,6 +52,18 @@ function objectCompare(obj1, obj2) {
 	return true;
 };
 
+export function groupObj(obj, group) {
+  const res = {};
+  for (let key of Object.keys(obj)) {
+    const k = group(key, obj[key]);
+
+    if (!res[k]) res[k] = [];
+
+    res[k].push(key);
+  }
+  return res;
+}
+
 export function filterObj(obj, filter) {
   const res = {};
   for (let key of Object.keys(obj)) {

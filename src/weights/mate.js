@@ -1,61 +1,105 @@
+import { mapObj, filterObj, groupObj } from '../util2';
+
 import * as util from '../util';
 
-import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight } from '../weight';
+import { makeDoPosition, exists, isColor, isKnight, isRook } from './util';
 
-import { filterObj } from '../util2';
+import { movementVector } from '../chess/util';
 
+import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight, WeightsLength, WeightsMix } from '../weight';
 
 export default function weightMate(d) {
-  
-  const { after,
-          before,
-          afterEval,
-          beforeEval,
-          usKing,
-          themKing,
-          us,
-          them } = d;
 
   const {
-    wKingAttacks
-  } = d;
+    opts,
+    move,
+    after,
+    afterEval,
+    beforeEval,
+    usPieces,
+    themPieces,
+    us,
+    them } = d;
+
+  const doPos = makeDoPosition(opts.position, move);
+
+  const kingEval = afterEval.square(usPieces.king);
+
+  const m = _ => movementVector.direction(themPieces.king, _);
+
+  const kingMoves = m('kings'),
+        kingDiagonals = m('kingDiagonals'),
+        kingFiles = m('kingFiles'),
+        kingRanks = m('kingRanks'),
+        kingUps = m('kingUps'),
+        kingDowns = m('kingDowns'),
+        kingLefts = m('kingLefts'),
+        kingRights = m('kingRights');
+
+
+  const l = (_, l = 0) => _.length === l;
 
 
   function backrankMate() {
-    const king = afterEval.square(themKing);
 
-    const freeMoves = Object.keys(
-      filterObj(king.moves, (key, value) => {
-        return !value.blocking;
-      }));
+    const knightOnEdge = WeightsMix({
+      up: l(kingUps),
+      down: l(kingDowns),
+      left: l(kingLefts),
+      right: l(kingRights)
+    });
 
+    let opposite = [];
 
-    let wFree;
-
-    switch(util.classifyDirection(freeMoves)) {
-    case util.Direction.file:
-      wFree = Weight(1);
-      break;
-    case util.Direction.rank:
-      wFree = Weight(1);
-      break;
-    case util.Direction.diagonal:
-      wFree = Weight(1);
-      break;
-    default:
-      wFree = Weight(0);
+    if (l(kingUps)) {
+      opposite = kingDowns;
+    } else if (l(kingDowns)) {
+      opposite = kingUps;
+    } else if (l(kingLefts)) {
+      opposite = kingRights;
+    } else if (l(kingRights)) {
+      opposite = kingLefts;
     }
-    
 
-    
+    const friendlyBlocks = opposite
+          .map(after.get)
+          .filter(exists)
+          .filter(isColor(them));
 
     return Weights({
-      free: wFree
+      onEdge: knightOnEdge,
+      friendlyBlocks: Weight(friendlyBlocks.length/3)
+    });
+  }
+
+  function hookMate() {
+
+    const knight = kingDiagonals
+          .filter(_ => {
+            const p = after.get(_);
+            return exists(p) && isKnight(us)(p);
+          });
+
+    const protects = knight.flatMap(_ => movementVector.move(_, 'n'));
+
+    const kingEscape = protects.filter(_ => kingMoves.indexOf(_)!== -1);
+
+    const hasARook = kingEscape
+          .map(after.get)
+          .filter(exists)
+          .filter(isRook(us));
+
+    return WeightsLength({
+      knight,
+      protects,
+      kingEscape,
+      hasARook
     });
   }
 
 
   return Weights({
-    backrank: backrankMate()
+    backrank: backrankMate(),
+    hook: hookMate()
   });
 }

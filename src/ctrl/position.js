@@ -2,6 +2,8 @@ import play from '../play';
 import Board from '../board';
 
 export default function ctrl(ctrl, position, redraw) {
+  this.position = position;
+
   this.data = {
     li: ctrl.data.li
   };
@@ -36,7 +38,7 @@ export default function ctrl(ctrl, position, redraw) {
 
   const evaluatePosition = () => {
     const board = new Board(this.fen()),
-          p = play(board);
+          p = play(board, 0, { position });
 
     let w2,
         w1 = p.weights
@@ -73,7 +75,7 @@ export default function ctrl(ctrl, position, redraw) {
       for (var key in node.children) {
         richWeight(node.children[key], depth + 1);
       }
-      node.collapsed = depth > 2;
+      node.collapsed = depth > 2 || node.w < 0.01;
     }
 
     return node;

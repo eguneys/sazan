@@ -72,13 +72,30 @@ export function Weights(weights) {
   );
 }
 
-export function WeightsWithSized(weights, max, sizeWeight) {
+export function WeightsAndSize(weights, max, sizeWeight) {
   const scale = Object.keys(weights).length/max;
 
   return WeightedSum({
     v: [Weights(weights), 1-sizeWeight],
     s: [Weight(scale), sizeWeight]
   });
+}
+
+export function WeightsLength(weights) {
+  return Weights(mapObj(weights, (_, value) => 
+    Weight(value.length>0?1:0)));
+}
+
+export function WeightsMix(weights) {
+  return Weights(mapObj(weights, (_, value) => {
+    let v;
+    if (typeof value === 'object') {
+      v = value.length;
+    } else {
+      v = value;
+    }
+    return Weight(v);
+  }));
 }
 
 export function Compose(a, b, f) {

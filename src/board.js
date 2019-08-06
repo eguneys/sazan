@@ -50,7 +50,7 @@ export default function Board(fen) {
   };
 
   this.piece = (color, type) => {
-    return util.squares.find(square => {
+    return util.squares.filter(square => {
       const piece = this.get(square);
 
       return piece && piece.color === color &&
@@ -59,7 +59,18 @@ export default function Board(fen) {
   };
 
   this.king = (color) => {
-    return this.piece(color, 'k');
+    return this.piece(color, 'k')[0];
+  };
+
+  this.pieces = (color) => {
+    return {
+      king: this.king(color),
+      queens: this.piece(color, 'q'),
+      rooks: this.piece(color, 'r'),
+      bishops: this.piece(color, 'b'),
+      knights: this.piece(color, 'n'),
+      pawns: this.piece(color, 'p')
+    };
   };
 
   this.moves = (square) => {
@@ -121,7 +132,7 @@ export default function Board(fen) {
       }, kingPos);
 
       if (Object.entries(attackers).length !== 0) {
-        movement.danger = true;
+        movement.danger = Object.keys(attackers);
       }
     }
 

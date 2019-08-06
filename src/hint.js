@@ -3,6 +3,7 @@ import { memoize, memoize2 } from './util2';
 import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight } from './weight';
 
 import weightMate from './weights/mate';
+import weightTactics from './weights/tactics';
 
 export function logMove(move, msg, actual) {
   if (move === actual.uci) {
@@ -10,31 +11,29 @@ export function logMove(move, msg, actual) {
   }
 }
 
-export function WeightMove(move, depth) {
+export function WeightMove(move, depth, opts) {
 
   const after = move.after,
         before = move.before,
         afterEval = move.afterEval,
         beforeEval = move.beforeEval,
-        usKing = after.king(before.turn()),
-        themKing = after.king(after.turn()),
-        us = move.before.turn(),
-        them = move.after.turn();
+        us = before.turn(),
+        them = after.turn(),
+        usPieces = after.pieces(us),
+        themPieces = after.pieces(them);
 
 
   const init = () => {
+    this.opts = opts;
+    this.move = move;
     this.after = after;
     this.before = before;
     this.afterEval = afterEval;
     this.beforeEval = beforeEval;
-    this.usKing = usKing;
-    this.themKing = themKing;
+    this.usPieces = usPieces;
+    this.themPieces = themPieces;
     this.us = us;
     this.them = them;
-  };
-
-  const withColor = (board, color) => {
-    return _ => board.get(_).color === color;
   };
 
   const weightAttackReduce = (square, depth, isBefore = false) => 
@@ -171,7 +170,7 @@ export function WeightMove(move, depth) {
   this.get = () => {
     return WeightedSum({
       mate: [weightMate(this), 0.4],
-      trapKing: [weightTrapKing(), 0.4]
+      tactics: [weightTactics(this), 0.4]
     });
   };
 
