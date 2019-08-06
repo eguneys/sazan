@@ -1,6 +1,6 @@
 import { memoize, memoize2 } from './util2';
 
-import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight } from './weight';
+import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight } from './weights/weight';
 
 import weightMate from './weights/mate';
 import weightTactics from './weights/tactics';

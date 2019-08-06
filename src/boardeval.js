@@ -23,6 +23,7 @@ export default function BoardEval(board) {
 
   const squareEval = memoize((square) => {
     return {
+      square,
       holds: squareHolds(square),
       moves: squareMoves(square),
       attacks: squareAttacks(square),

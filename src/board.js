@@ -59,7 +59,7 @@ export default function Board(fen) {
   };
 
   this.king = (color) => {
-    return this.piece(color, 'k')[0];
+    return this.piece(color, 'k');
   };
 
   this.pieces = (color) => {

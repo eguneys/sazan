@@ -1,7 +1,5 @@
 import { WeightMove } from './hint';
 
-import { weightCompare } from './weight';
-
 export default function play(board, depth = 0, opts = {}) {
 
   let legals = board.legals();
@@ -23,7 +21,7 @@ export default function play(board, depth = 0, opts = {}) {
 
   const secondBest = sorted[1];
 
-  if (depth === 0)
+  if (false && depth === 0)
     weights
     .filter(_ => _.uci === best.uci || _.uci === 'Qf7+')
     .forEach(_ => console.log(_.uci, _.w.value(), _.w.json()));

@@ -6,7 +6,7 @@ import { makeDoPosition, exists, isColor, isKnight, isRook } from './util';
 
 import { movementVector } from '../chess/util';
 
-import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight, WeightsLength, WeightsMix } from '../weight';
+import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight, WeightsLength, WeightsMix } from './weight';
 
 export default function weightMate(d) {
 

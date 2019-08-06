@@ -1,4 +1,4 @@
-import { mapObj } from './util2';
+import { mapObj } from '../util2';
 
 export function scale(scale) {
   return (a, b) => {
@@ -70,6 +70,15 @@ export function Weights(weights) {
   return WeightedSum(
     mapObj(weights, (_, value) => [value, scale()])
   );
+}
+
+export function WeightsArray(array) {
+  const res = array.reduce((acc, v) => (
+    { [v]: Weight(1),
+      ...acc
+    }), {});
+  
+  return Weights(res);
 }
 
 export function WeightsAndSize(weights, max, sizeWeight) {
