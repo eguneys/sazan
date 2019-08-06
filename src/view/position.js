@@ -116,6 +116,10 @@ function renderSelectPosition(ctrl) {
   }, options);
 }
 
+function renderTranslation(ctrl) {
+  return h('p.translation.white', ctrl.data.translation);
+}
+
 function renderControls(ctrl) {
   return h('div.controls', [
     renderSelectPosition(ctrl)
@@ -126,6 +130,7 @@ export default function view(ctrl) {
   return h('div.position', [
     renderGround(ctrl),
     renderControls(ctrl),
-    moves(ctrl)
+    renderTranslation(ctrl),
+    moves(ctrl),
   ]);
 }

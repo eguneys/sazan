@@ -1,3 +1,4 @@
+import translate from '../translation';
 import play from '../play';
 import Board from '../board';
 
@@ -71,6 +72,8 @@ export default function ctrl(ctrl, position, redraw) {
 
     this.data.move1 = makeMove(w1);
     this.data.move2 = makeMove(w2);
+
+    this.data.translation = translate(this.data.move1.root);
   };
 
   this.toggle = (node) => {
