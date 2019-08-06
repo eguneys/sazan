@@ -2,6 +2,8 @@ import * as util from '../util';
 
 import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight } from '../weight';
 
+import { filterObj } from '../util2';
+
 
 export default function weightMate(d) {
   
@@ -12,30 +14,43 @@ export default function weightMate(d) {
           usKing,
           themKing,
           us,
-          them,
-          kingMobility } = d;
+          them } = d;
+
+  const {
+    wKingAttacks
+  } = d;
 
 
   function backrankMate() {
+    const king = afterEval.square(themKing);
 
-    const mobility = Weights({});
+    const freeMoves = Object.keys(
+      filterObj(king.moves, (key, value) => {
+        return !value.blocking;
+      }));
 
-    switch (util.classifyDirection(kingMobility)) {
+
+    let wFree;
+
+    switch(util.classifyDirection(freeMoves)) {
     case util.Direction.file:
-      mobility.add({ file: [Weight(1), 0.3] });
+      wFree = Weight(1);
       break;
     case util.Direction.rank:
-      mobility.add({ rank: [Weight(1), 0.3] });
+      wFree = Weight(1);
       break;
-    case util.Direction.rank:
-      mobility.add({ diagonal: [Weight(1), 0.3] });
+    case util.Direction.diagonal:
+      wFree = Weight(1);
+      break;
     default:
+      wFree = Weight(0);
     }
+    
 
     
 
     return Weights({
-      mobility
+      free: wFree
     });
   }
 

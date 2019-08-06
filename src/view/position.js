@@ -1,8 +1,9 @@
 import { h } from 'snabbdom';
 
-import { bind } from './utilview';
+import { bind } from './util';
 
-import ground from './ground';
+import ground from '../ground';
+import { makeConfig as makeGroundConfig } from '../ground';
 
 function roundTo(x) {
   return Math.round(x * 10000) / 10000;
@@ -93,15 +94,29 @@ function renderGround(ctrl) {
   return h('div.ground', {
     hook: {
       insert(vnode) {
-        ctrl.ground = ground(vnode.elm, ctrl.groundConfig);
+        ctrl.setGround(ground(vnode.elm, makeGroundConfig(ctrl)));
       }
     }
   });
 }
 
+function renderSelectPosition(ctrl) {
+  let options = Object.keys(ctrl.data.li).map(_ => h('option', _));
+  return h('select', {
+    hook: bind('input', (e) => { ctrl.setPosition(e.target.value); })
+  }, options);
+}
+
+function renderControls(ctrl) {
+  return h('div.controls', [
+    renderSelectPosition(ctrl)
+  ]);
+}
+
 export default function view(ctrl) {
-  return h('div.main', [
+  return h('div.position', [
     renderGround(ctrl),
+    renderControls(ctrl),
     moves(ctrl)
   ]);
 }

@@ -3,7 +3,8 @@ How to play
 =
 
 
-In [this situation](6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1)
+### Backrank Mate
+A Back-Rank Mate is a checkmate delivered by a rook or queen along the back rank in which the mated king is unable to move up the board because the king is blocked by friendly pieces (usually pawns) on the second rank.
 
 Thanks
 =

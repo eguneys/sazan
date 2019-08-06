@@ -39,4 +39,28 @@ K     b
 
 
 });
+
+
+  withBoardEval(`
+R   n   
+       k
+     K
+  n
+    q
+  
+ 
+     b
+`, board => {
+
+  has_keys('knight moves', {
+    a4: {},
+    a6: {}
+  }, board.square('c5')['moves']);
+
+  has_keys('knight attacks', {
+    e6: {}
+  }, board.square('f6')['moves']);
+
+});
+  
 }

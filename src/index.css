@@ -1,3 +1,16 @@
+.main {
+  display: flex;
+  justify-content: center;
+}
+
+.position {
+  margin: 2px;
+}
+
+.position:nth-child(1) {
+  border-right: 1px solid black;
+}
+
 .cg-wrap coords {
   font-size: 1em;
   font-weight: bold;
@@ -5,7 +18,12 @@
 }
 
 .ground {
-  margin: auto;
+  margin: 20px auto;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
 }
 
 .moves {

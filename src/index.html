@@ -40,14 +40,16 @@
   <script>
 
    const li = {
-     backrankMate1: { fen: '6k1/4Rppp/8/8/8/8/5PPP/6K1 w - - 0 1', move1: 'Re8#' },
-     backrankMate4: '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1',
-     hookMate2: '5r1b/2R1R3/P4r2/2p2Nkp/2b3pN/6P1/4PP2/6K1 w - - 0 1',
-     hookMate3: { fen: '2b1Q3/1kp5/p1Nb4/3P4/1P5p/p6P/K3R1P1/5q2 w - - 0 1', move1: 'Qxc8+' }
+     backrankMate1: { fen: '6k1/4Rppp/8/8/8/8/5PPP/6K1 w - - 0 1', move: 'Re8#' },
+     backrankMate4: { fen: '6k1/3qb1pp/4p3/ppp1P3/8/2PP1Q2/PP4PP/5RK1 w - - 0 1', move: 'Qf7+' },
+     hookMate1: { fen: 'R7/4kp2/5N2/4P3/8/8/8/6K1 w - - 0 1', move: 'Re8#' },
+     hookMate3: { fen: '2b1Q3/1kp5/p1Nb4/3P4/1P5p/p6P/K3R1P1/5q2 w - - 0 1', move: 'Qxc8+' }
    };
 
    Tetris(document.getElementById('app'), {
-     ...li.backrankMate1
+     li,
+     position1: 'backrankMate1',
+     position2: 'hookMate1'
    });
 
    Tetris.Tests();

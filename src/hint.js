@@ -19,20 +19,19 @@ export function WeightMove(move, depth) {
         usKing = after.king(before.turn()),
         themKing = after.king(after.turn()),
         us = move.before.turn(),
-        them = move.after.turn(),
-        kingMobility = after.trapSquares(themKing);
+        them = move.after.turn();
 
 
-
-  this.after = after;
-  this.before = before;
-  this.afterEval = afterEval;
-  this.beforeEval = beforeEval;
-  this.usKing = usKing;
-  this.themKing = themKing;
-  this.us = us;
-  this.them = them;
-  this.kingMobility = kingMobility;
+  const init = () => {
+    this.after = after;
+    this.before = before;
+    this.afterEval = afterEval;
+    this.beforeEval = beforeEval;
+    this.usKing = usKing;
+    this.themKing = themKing;
+    this.us = us;
+    this.them = them;
+  };
 
   const withColor = (board, color) => {
     return _ => board.get(_).color === color;
@@ -102,7 +101,7 @@ export function WeightMove(move, depth) {
   });
 
   function weightTrapKing() {
-    return controlSquares(kingMobility, themKing);
+    return Weight(0);
   };
 
   function controlSquares(squares, trap) {
@@ -175,4 +174,6 @@ export function WeightMove(move, depth) {
       trapKing: [weightTrapKing(), 0.4]
     });
   };
+
+  init();
 }

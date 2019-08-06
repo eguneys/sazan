@@ -65,10 +65,10 @@ export function WeightedSum(weights, activation = sum) {
 
 
 export function Weights(weights) {
-  const scale = 1/Object.keys(weights).length;
+  const scale = () => 1/Object.keys(weights).length;
 
   return WeightedSum(
-    mapObj(weights, (_, value) => [value, scale])
+    mapObj(weights, (_, value) => [value, scale()])
   );
 }
 

@@ -1,7 +1,7 @@
 import snab from './snab';
 
-import makeCtrl from './ctrl';
-import view from './view';
+import makeCtrl from './ctrl/main';
+import view from './view/main';
 import configure from './config';
 import defaults from './state'; 
 
