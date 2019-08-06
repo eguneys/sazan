@@ -1,4 +1,4 @@
-import { memoize, memoize2 } from './util2';
+import { memoize, memoize2, mapObj } from './util2';
 
 import { scale, sum, mul, WeightedSum, Weights, WeightsWithSized, Compose, Weight } from './weights/weight';
 
@@ -23,6 +23,13 @@ export function WeightMove(move, depth, opts) {
         themPieces = after.pieces(them);
 
 
+  const ev = (__, _) => _.map(afterEval.square);
+
+  const themEval = mapObj(themPieces, ev),
+        usEval = mapObj(usPieces, ev);
+
+
+
   const init = () => {
     this.opts = opts;
     this.move = move;
@@ -30,6 +37,8 @@ export function WeightMove(move, depth, opts) {
     this.before = before;
     this.afterEval = afterEval;
     this.beforeEval = beforeEval;
+    this.usEval = usEval;
+    this.themEval = themEval;
     this.usPieces = usPieces;
     this.themPieces = themPieces;
     this.us = us;

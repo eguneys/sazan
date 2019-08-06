@@ -7,6 +7,10 @@ export const values = {
   'p': 1
 };
 
+export const color = _ => _.color;
+
+export const type = _ => _.type;
+
 export const exists = _ => !!_;
 
 export const isColor = (color) => {
