@@ -1,21 +1,27 @@
-
-How to play
+Project
 =
 
+Sazan is about evaluating a chess position like a human, identifying situations such as openings, tactics, and other ideas. It also weights possible moves, and gives the best move. It doesn't use an engine, in fact it could be used to make an engine. It only relies on [chess.js](https://github.com/jhlywa/chess.js).
 
-## Mates
+Goals
+=
 
-### Back-Rank
+One goal is to find tactics that involve 7-8 move combinations.
 
-> A Back-Rank Mate is a checkmate delivered by a rook or queen along the back rank in which the mated king is unable to move up the board because the king is blocked by friendly pieces (usually pawns) on the second rank.
+Another goal is to find strong moves and play decent.
 
-### Hook
+I try to avoid searching deep move trees. But weight specific ideas for the position, and possibly limit the search based on these ideas or don't search at all.
 
-Rook delivering mate while protected by a knight. 
-The knight is in turn protected by another friendly piece
-The escape route left by the attacking rook and knight is either blocked by one of the king's own pieces, or protected by another piece of the mating side.
+Inspiration is that humans can't search like engines, but can find the best moves with limited calculation capacity. If an engine could think like a human and filter correct moves, it could play like a human without making a mistake. Also it would comment on the position like a human.
 
-Knight protects king escape square that has a rook on
+https://www.reddit.com/r/chess/comments/cjqif5/is_it_possible_to_make_a_software_that_can/
+
+Answers
+=
+
+* https://chess.stackexchange.com/questions/25046/can-it-be-useful-for-a-player-block-with-a-hanging-piece-in-a-back-rank-mate-sitt2
+* https://chess.stackexchange.com/questions/25081/is-it-still-back-rank-mate-when-there-arent-friendly-pieces-blocking
+* https://chess.stackexchange.com/questions/25052/hanging-square-and-deflection-tactic-leading-to-a-back-rank-checkmate
 
 Thanks
 =
